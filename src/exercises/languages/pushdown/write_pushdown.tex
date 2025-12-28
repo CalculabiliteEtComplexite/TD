@@ -1,0 +1,133 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Pushdown automata
+% Exercise: From grammars to pushdown automata
+
+\begingroup
+
+\begin{exercice}[Grammaires et automates à pile non déterministes]\label{exo:languages/pushdown/write_pushdown}
+
+  Pour chacun des langages ci-dessous donner un automate à pile reconnaissant le langage, et dire si l'automate proposé est déterministe. 
+
+  \begin{question}
+  \item $\{ a^n b^{2n} \mid  n > 0\}$
+  \end{question}
+  \begin{correction}
+    Automate déterministe :
+    \begin{tikzpicture}[pushdown, baseline=(s.base)]
+      \state[initial]   (s) at (0,0) {$0$};
+      \state            (p) at (1,0) {$1$};
+      \state            (q) at (2,0) {$2$};
+      \state[accepting] (f) at (3,0) {$3$};
+
+      \path (s) edge[loop above] node       {\smPAtrans{a}{\varepsilon}{A}}                  (s);
+      \path (s) edge             node[swap] {\smPAtrans{b}{A}{\varepsilon}}                  (p);
+      \path (p) edge             node[swap] {\smPAtrans{b}{\varepsilon}{\varepsilon}}        (q);
+      \path (q) edge[bend right] node[swap] {\smPAtrans{b}{A}{\varepsilon}}                  (p);
+      \path (q) edge             node[swap] {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}} (f);
+    \end{tikzpicture}
+    \vspace{-1mm}
+  \end{correction}
+
+  \begin{question}
+  \item $\{a^n b^m c^{n+m} \mid n, m  \in \mathbb{N}\}$
+  \end{question}
+  \begin{correction}
+    Automate déterministe :
+    \begin{tikzpicture}[pushdown, baseline=(s.base)]
+      \state[initial]   (s) at (0,0) {$0$};
+      \state            (p) at (1,0) {$1$};
+      \state            (q) at (2,0) {$2$};
+      \state[accepting] (f) at (3,0) {$3$};
+
+      \path (s) edge[loop above] node {\smPAtrans{a}{\varepsilon}{A}}                  (s);
+      \path (s) edge             node {\smPAtrans{\varepsilon}{\varepsilon}{\varepsilon}} (p);
+      \path (p) edge[loop above] node {\smPAtrans{b}{\varepsilon}{B}}                  (p);
+      \path (p) edge             node {\smPAtrans{\varepsilon}{\varepsilon}{\varepsilon}} (q);
+
+      \path (q) edge[loop above] node {\smPAtrans{c}{A}{\varepsilon}}                  (q);
+      \path (q) edge[loop below] node {\smPAtrans{c}{B}{\varepsilon}}                  (q);
+
+      \path (q) edge             node {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}} (f);
+    \end{tikzpicture}
+    \vspace{-1mm}
+  \end{correction}
+
+  \begin{question}
+  \item $\{x c x^\textsc{r} \mid  x \in \{a, b\}^\star  \}$ ($x^\textsc{r}$ est le mot miroir de $x$)
+  \end{question}
+  \begin{correction}
+    Automate déterministe :
+    \begin{tikzpicture}[pushdown, baseline=(s.base)]
+      \state[initial]   (s) at (0,0) {$0$};
+      \state            (p) at (1,0) {$1$};
+      \state[accepting] (f) at (2,0) {$2$};
+
+      \path (s) edge[loop above] node {\smPAtrans{a}{\varepsilon}{A}}                  (s);
+      \path (s) edge[loop below] node {\smPAtrans{b}{\varepsilon}{B}}                  (s);
+      \path (s) edge             node {\smPAtrans{c}{\varepsilon}{\varepsilon}}        (p);
+
+      \path (p) edge[loop above] node {\smPAtrans{a}{A}{\varepsilon}}                  (p);
+      \path (p) edge[loop below] node {\smPAtrans{b}{B}{\varepsilon}}                  (p);
+      \path (p) edge             node {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}} (f);
+    \end{tikzpicture}
+    \vspace{-1mm}
+  \end{correction}
+
+  \begin{question}
+  \item $\left\langle \{a, b\}, \{S\}, S,
+    \left\{\begin{array}{rcl}
+    S &\rightarrow& aSbS \mid \varepsilon\\
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    Automate non-déterministe :
+    \begin{tikzpicture}[pushdown, baseline=(s.base)]
+      \state[initial above] (s) at (0,0) {$0$};
+      \state[accepting]     (f) at (1,0) {$1$};
+
+      \path (s) edge[loop left] node {\smAlign{
+          \smPAtrans{\varepsilon}{S}{aSbS}
+          \smPAtrans{\varepsilon}{S}{\varepsilon}
+          \smPAtrans{a}{a}{\varepsilon}
+          \smPAtrans{b}{b}{\varepsilon}
+      }}               (s);
+
+      \path (s) edge             node {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}} (f);
+    \end{tikzpicture}
+    \vspace{-1mm}
+  \end{correction}
+  
+  \begin{question}
+  \item $\left\langle \{a, b, c\}, \{S, T\}, S,
+    \left\{\begin{array}{rcl}
+    S &\rightarrow& a S b \mid  T\\
+    T &\rightarrow& cT \mid  c
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    Automate non-déterministe :
+    \begin{tikzpicture}[pushdown, baseline=(s.base)]
+      \state[initial above] (s) at (0,0) {$0$};
+      \state[accepting]     (f) at (1,0) {$1$};
+
+      \path (s) edge[loop left] node {\smAlign{
+          \smPAtrans{\varepsilon}{S}{aSb}
+          \smPAtrans{\varepsilon}{S}{T}
+          \smPAtrans{\varepsilon}{T}{cT}
+          \smPAtrans{\varepsilon}{T}{c}
+        }~~\smAlign{
+          \smPAtrans{a}{a}{\varepsilon}
+          \smPAtrans{b}{b}{\varepsilon}
+          \smPAtrans{c}{c}{\varepsilon}
+      }}               (s);
+
+      \path (s) edge             node {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}} (f);
+    \end{tikzpicture}
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

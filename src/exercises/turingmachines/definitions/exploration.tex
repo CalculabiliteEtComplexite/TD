@@ -1,0 +1,43 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Deterministic Turing machines
+% Exercise: Tape exploration
+
+\begingroup
+
+\begin{exercice}[Exploration de ruban]\label{exo:turingmachines/definitions/exploration}
+
+  L'objectif de cet exercice est de concevoir des machines de Turing capables de localiser le début d'un mot $w$ sur un ruban.
+  Initialement, le ruban contient un mot $w\in \{a\}^+$ entouré de cases vides $\blank$,
+  et la tête de lecture peut commencer sur une position arbitraire, potentiellement éloignée à gauche ou à droite du mot $w$.
+  La machine de Turing doit atteindre une configuration bloquante dans laquelle la tête de lecture se trouve au début du mot $w$. 
+
+  \begin{question}
+  \item Construisez une machine de Turing déterministe $M$ qui localise le début du mot $w$.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(0)]
+      \state[initial above] (0) at (0,0) {$0$}; 
+      \state                (1) at (1,0) {$1$}; 
+      \state[accepting]     (2) at (2,0) {$2$};
+
+      \path (0) edge[loop left]  node {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}}} (0);
+      \path (0) edge[bend left]  node {\smTMtransR{\blank}{b}}                       (1);
+      \path (1) edge[bend left]  node {\smTMtransL{\blank}{b}}                       (0);
+      \path (1) edge[loop above] node {\smTMtransR{b}{b}}                            (1);
+      \path (1) edge             node {\smTMtransS{a}{a}}                            (2);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item Que se passe-t-il si $w\in \{a\}^\star$ ?
+  \end{question}
+  \begin{correction}
+    La machine $M_{d}$ ne termine pas sur le mot $\varepsilon$. 
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

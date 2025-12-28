@@ -1,0 +1,432 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\tikzset{
+  sub tm/.style={fill=black!20, rounded corners=7, inner sep=0pt, minimum height=1cm, minimum width=1cm,},
+  tm state/.style={fill=black!20,},
+}
+
+\begin{exercice}[Calculabilité d'un langage impératif]\label{exercice:IMPtoMT}
+
+  On considère un petit langage impératif, \emph{IMP}, dont les seules données manipulées sont des \emph{chaînes de caractères} sur un alphabet $\Gamma$.
+  La syntaxe du langage est donnée par la grammaire\footnote{La grammaire est volontairement simplifiée et ambigüe} suivante,
+  dans laquelle le non-terminal \textsc{i} représente les instructions,
+  le non-terminal \textsc{x} les identifiants de variable,
+  et le non-terminal \textsc{c} les chaînes de caractères constantes.
+  Le langage ne contient volontairement pas d'expressions complexes pour en simplifier l'analyse. 
+  
+  $$\left\{\begin{array}{rcll}
+  \textsc{i} & \rightarrow & \texttt{skip}                                                                                           & \text{ne rien faire}\\
+  &                \mid        & \textsc{i} ; \textsc{i}                                                                             & \text{exécution séquentielle}\\
+  &                \mid        & \texttt{if }\textsc{x}\neq\textsc{x}\texttt{ then }\textsc{i}\texttt{ else }\textsc{i}\texttt{ end} & \text{conditionnelle}\\
+  &                \mid        & \texttt{while }\textsc{x}\neq\textsc{x}\texttt{ do }\textsc{i}\texttt{ end}                         & \text{boucle}\\
+  &                \mid        & \textsc{x} \leftarrow `` \textsc{c} "                                                               & \text{affectation d'une constante}\\
+  &                \mid        & \textsc{x} \leftarrow \textsc{x}                                                                    & \text{affectation d'une copie}\\
+  &                \mid        & \textsc{x} \leftarrow \textsc{x} + \textsc{x}                                                       & \text{affectation de la concaténation}\\
+  &                \mid        & \textsc{x} \leftarrow \texttt{head}(\textsc{x})                                                     & \text{affectation du premier caractère}\\
+  &                \mid        & \textsc{x} \leftarrow \texttt{tail}(\textsc{x})                                                     & \text{affectation des caractères suivants}\\
+  \textsc{x} & \rightarrow & [a-z]^+                                                                                                 & \text{nom de variable}\\
+  \textsc{c} & \rightarrow & \Gamma^\star                                                                                             & \text{chaîne de caractères constante}\\
+  \end{array}\right.$$
+  
+  On considère la sémantique standard des instructions, où \texttt{head} et \texttt{tail} désignent respectivement
+  le premier symbole et le reste d'une chaîne, et \texttt{+} la concaténation.
+  
+  On suppose que les données d'entrées du programme sont stockées dans une variable spéciale $\mathit{input}$,
+  et la sortie du programme est la valeur stockée dans la variable spéciale $\mathit{output}$ lorsque le programme s'arrête sans erreur.
+  En cas de boucle infinie ou d'erreur (par exemple lors de la lecture d'une variable non initialisée ou de l'appel à \texttt{head} ou \texttt{tail} sur une chaîne vide),
+  on considère que la sortie est indéfinie.
+  La \emph{fonction calculée} par le programme est alors définie comme la fonction partielle
+  de $\Gamma^\star$ vers $\Gamma^\star$ qui associe à chaque entrée la sortie produite par le programme.
+  
+  Par exemple, les programmes suivants calculent respectivement la fonction miroir et la projection sur ``a'' :
+
+  $$
+  \begin{array}{l}
+    \mathit{empty}~\leftarrow ``" ;\\
+    \mathit{output}\leftarrow \mathit{empty} ;\\
+    \texttt{while }\mathit{input} \neq \mathit{empty} \texttt{ do } \\
+    \quad  \mathit{tmp} ~~~~~\leftarrow \texttt{head}(\mathit{input}) ;\\
+    \quad  \mathit{output} \leftarrow \mathit{tmp} + \mathit{output} ;\\
+    \quad  \mathit{input} ~~\leftarrow \texttt{tail}(\mathit{input})\\
+    \texttt{end}
+  \end{array}
+  \quad\quad\quad
+  \begin{array}{l}
+    \mathit{empty}\leftarrow ``" ; \mathit{output}\leftarrow \mathit{empty} ; \mathit{a}\leftarrow ``a" ; \\
+    \texttt{while }\mathit{input} \neq \mathit{empty} \texttt{ do } \\
+    \quad  \mathit{tmp} ~~~\leftarrow \texttt{head}(\mathit{input}) ;\\
+    \quad  \mathit{input} \leftarrow \texttt{tail}(\mathit{input})\\
+    \quad  \texttt{if }\mathit{tmp} \neq \mathit{a} \texttt{ then skip else } \\
+    \quad\quad  \mathit{output} \leftarrow \mathit{output} + \mathit{tmp} \\
+    \quad  \texttt{end }\\
+    \texttt{end}
+  \end{array}
+  $$
+
+  On cherche à montrer que le langage IMP est au moins aussi puissant que le modèle des machines de Turing.
+  Pour cela, on considère une machine de Turing déterministe
+  $M = \langle \Sigma, \Gamma, \blank, Q, q_0, F, \rightarrow \rangle$,
+  et on se donne pour objectif de construire un programme IMP qui simule les exécutions de $M$.
+  On supposera que les états de la machine sont encodés par des mots sur $\Gamma$,
+  c'est-à-dire que $Q \subset \Gamma^+$.
+
+  Dans toute la construction qui suit, on imposera les invariants suivants.
+  On utilisera trois variables $\mathit{state}$, $\mathit{left}$ et $\mathit{right}$
+  pour représenter une configuration de $M$ sous la forme
+  $\langle \mathit{left}, \mathit{state}, \mathit{right} \rangle$,
+  où :
+  \begin{itemize}
+  \item la partie gauche du ruban est encodée en miroir, de sorte que
+    $\texttt{head}(\mathit{right})$ désigne le symbole actuellement sous la tête de lecture,
+    et $\texttt{head}(\mathit{left})$ le symbole immédiatement à sa gauche ;
+  \item le dernier caractère de $\mathit{left}$ et de $\mathit{right}$ est toujours
+    le symbole blanc $\blank$.
+  \end{itemize}
+
+  \pagebreak
+  
+  \begin{question}
+  \item Proposer un programme IMP qui initialise la configuration $\langle \mathit{left}, \mathit{state}, \mathit{right} \rangle$
+    en fonction de $\mathit{input}$.
+  \end{question}
+  \begin{correction}
+    $\mathit{left} \leftarrow ``" ; \mathit{state} \leftarrow q_0 ; \mathit{right} \leftarrow \mathit{input}$
+  \end{correction}
+  
+  \begin{question}
+  \item On considère une transition $ q\xrightarrow{\smTMtransR{a}{b}} q'$ de $M$.
+    Proposer un programme IMP qui vérifie si la transition peut être tirée,
+    et si oui modifie les variables $\mathit{state}$, $\mathit{left}$ et $\mathit{right}$
+    en conséquence.
+  \end{question}
+  \begin{correction}
+    $$\begin{array}{l}
+      \mathit{empty} \leftarrow ``" ; \mathit{blank} \leftarrow ``\blank" ;\\
+      \mathit{tstate}~\leftarrow q ;
+      \mathit{tchar}~\leftarrow a ;
+      \mathit{trans}~\leftarrow \mathit{tstate} + \mathit{tchar} ;\\
+      \mathit{hd}~\leftarrow \texttt{head}(\mathit{right}) ;
+      \mathit{curr}~\leftarrow \mathit{state} + \mathit{hd} ;\\
+      \texttt{if }\mathit{trans} \neq \mathit{curr} \texttt{ then }\\
+      \quad \texttt{skip} \\
+      \texttt{else} \\
+      \quad \mathit{left}~ \leftarrow \mathit{left} + \mathit{hd} ;\\
+      \quad \mathit{state} \leftarrow q' ;\\
+      \quad \mathit{right} \leftarrow \texttt{tail}(\mathit{right}) ;\\
+      \quad \texttt{if }\mathit{right} \neq \mathit{empty} \texttt{ then skip else } \mathit{right} \leftarrow \mathit{right} + \mathit{blank} \texttt{ end}\\
+      \texttt{end}
+    \end{array}$$
+  \end{correction}
+  
+  \begin{question}
+  \item En déduire un programme IMP qui simule les exécutions de la machine de Turing suivante.
+    On veillera en particulier à initialiser la variable $\mathit{output}$
+    en fonction de la configuration $\langle \mathit{left}, \mathit{state}, \mathit{right} \rangle$.
+    
+    \begin{tikzpicture}[turingMachine, baseline=(a.base)]
+      \state[initial]   (a) at (0,0) {$0$}; 
+      \state[accepting] (b) at (1,0) {$1$}; 
+      \path (a) edge[loop above] node {\smTMtransR{1}{0}} (a);
+      \path (a) edge             node {\smTMtransL{0}{1}} (b);
+    \end{tikzpicture}
+  \end{question}
+  \begin{correction}
+
+    $$\begin{array}{l}
+      \mathit{empty} \leftarrow ``" ; \mathit{blank} \leftarrow ``\blank" ; \mathit{done} \leftarrow \mathit{empty};\\
+      \texttt{while }\mathit{done} \neq \mathit{blank} \texttt{ do }\\
+      \quad \mathit{hd}~\leftarrow \texttt{head}(\mathit{right}) ;
+      \quad \mathit{curr}~\leftarrow \mathit{state} + \mathit{hd} ;\\
+      \quad \mathit{trans}~\leftarrow ``01" ;\\
+      \quad \texttt{if }\mathit{trans} \neq \mathit{curr} \texttt{ then }\\
+      \quad \quad \mathit{trans}~\leftarrow ``00" ;\\
+      \quad \quad \texttt{if }\mathit{trans} \neq \mathit{curr} \texttt{ then }\\
+      \quad \quad \quad \mathit{done} \leftarrow \mathit{blank}; \\
+      \quad \quad \texttt{else} \\
+      \quad \quad \quad \mathit{hd}~\leftarrow \texttt{head}(\mathit{left}) ; \\
+      \quad \quad \quad \mathit{left} \leftarrow \texttt{tail}(\mathit{left}) ;\\
+      \quad \quad \quad \texttt{if }\mathit{left} \neq \mathit{empty} \texttt{ then skip else } \mathit{left} \leftarrow \mathit{left} + \mathit{blank} \texttt{ end}\\
+      \quad \quad \quad \mathit{state} \leftarrow 1 ;\\
+      \quad \quad \quad \mathit{right}~ \leftarrow \mathit{right} + \mathit{hd} ;\\
+      \quad \quad \texttt{end} \\
+      \quad \texttt{else} \\
+      \quad \quad \mathit{left}~ \leftarrow \mathit{left} + \mathit{hd} ;\\
+      \quad \quad \mathit{state} \leftarrow 0 ;\\
+      \quad \quad \mathit{right} \leftarrow \texttt{tail}(\mathit{right}) ;\\
+      \quad \quad \texttt{if }\mathit{right} \neq \mathit{empty} \texttt{ then skip else } \mathit{right} \leftarrow \mathit{right} + \mathit{blank} \texttt{ end}\\
+      \quad \texttt{end}\\
+      \texttt{end}
+      \mathit{output} \leftarrow \mathit{right} ;\\
+      \texttt{while } \mathit{left} \neq \mathit{empty} \texttt{ do }\\
+      \quad \mathit{tmp} \leftarrow \texttt{head}(\mathit{left}) ; \mathit{output} \leftarrow \mathit{tmp} + \mathit{output} ; \mathit{left} \leftarrow \texttt{tail}(\mathit{left})\\
+      \texttt{end}
+    \end{array}$$
+  \end{correction}
+  
+  On cherche maintenant à établir la réciproque du résultat précédent :
+  toute exécution d’un programme IMP $P$ peut être simulée par une machine de Turing déterministe $M(P)$.
+  Pour cela, on va construire la machine $M(P)$ par induction structurelle sur l'arbre de syntaxe abstraite du programme $P$.
+
+  Les différentes machines construites vont vérifier les invariants suivants :
+  
+  \begin{itemize}
+  \item $M(P)$ possède un ruban différent associé à chaque variable utilisée par le programme $P$,
+    y compris les rubans $\mathit{input}$ où est marquée la valeur d'entrée et $\mathit{output}$
+    où est lue la valeur de sortie.
+  \item
+    $M(P)$ peut posséder des rubans de travail supplémentaires (nommés $1$, $2$, etc) que vous pouvez introduire à votre guise.
+  \item $M(P)$ possède un unique état accepteur $q_+$, d'où aucune transition ne sort. 
+  \item Dans l'état accepteur $q_+$, toutes les têtes de lecture sont positionnées au début du mot de leur ruban respectif.
+  \end{itemize}
+  
+  On représentera la machine de Turing $M(P)$ par : 
+  \begin{tikzpicture}[turingMachine, baseline=(a.base)]
+    \state[tm state, initial]   (a) at (2,3) {$q_0^P$}; 
+    \state[tm state, accepting] (b) at (4,3) {$q_+^P$}; 
+    \path[dashed] (a) edge node{\footnotesize $M(P)$} (b);
+    
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(a.center)(b.center)]         {};
+    \end{pgfonlayer}%
+  \end{tikzpicture}
+
+
+  \begin{question}
+  \item Étant données deux variables $x$ et $y$, construire les machines
+    de Turing qui mène dans deux états distincts $q_+$ et $q_-$
+    en fonction de l'égalité des mots stockés sur les rubans
+    \textsc{x} et \textsc{y}.
+  \end{question}
+  \begin{correction}
+    \vspace{-4mm}
+    \begin{tikzpicture}[turingMachine, baseline=(0.base), x=30mm, y=10mm]
+    \state[initial above] (0) at (2,0) {$q_0$}; 
+    \state                (1) at (1,0) {}; 
+    \state                (2) at (0,0) {$q_+$}; 
+    \state                (3) at (3,0) {}; 
+    \state                (4) at (4,0) {$q_-$}; 
+
+    \path   (0) edge[loop below] node      {\smGroup{\smTMtransR[\textsc{x}]{x}{x}\smTMtransR[\textsc{y}]{x}{x}} }                         (0);
+    \path   (0) edge             node      {\smGroup{\smTMtransL[\textsc{x}]{\blank}{\blank}\smTMtransL[\textsc{y}]{\blank}{\blank}} }     (1);
+    \path   (1) edge[loop below] node      {\smGroup{\smTMtransL[\textsc{x}]{x}{x}\smTMtransL[\textsc{y}]{x}{x}} }                         (1);
+    \path   (1) edge             node      {\smGroup{\smTMtransR[\textsc{x}]{\blank}{\blank}\smTMtransR[\textsc{y}]{\blank}{\blank}} }     (2);
+
+    \path   (0) edge             node[swap]{\smGroup{\smTMtransL[\textsc{x}]{y}{y}\smTMtransL[\textsc{y}]{z}{z}} }     (3);
+    \path   (3) edge[loop below] node      {\smGroup{\smTMtransL[\textsc{x}]{x}{x}\smTMtransL[\textsc{y}]{x}{x}} }                         (3);
+    \path   (3) edge             node[swap]{\smGroup{\smTMtransR[\textsc{x}]{\blank}{\blank}\smTMtransR[\textsc{y}]{\blank}{\blank}} }     (4);
+  \end{tikzpicture}
+
+  $\forall x\in \Gamma, \forall y, z \in \Gamma\cup\{\blank\}, y\neq z$.
+  \end{correction}
+
+  Dans la suite de l'exercice, on représentera la machine obtenue par : 
+  \begin{tikzpicture}[turingMachine, baseline=(a.base), y=6mm]
+    \state[tm state, initial above] (a) at (1,0) {$q_0$}; 
+    \state[tm state]                (+) at (0,0) {$q_+$}; 
+    \state[tm state]                (-) at (2,0) {$q_-$}; 
+    \path[dashed] (a) edge node[swap]{$x=y$} (+);
+    \path[dashed] (a) edge node{$x\neq y$}   (-);
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(a.center)(+.center)(-.center)] {};
+    \end{pgfonlayer}%
+  \end{tikzpicture}
+  
+  Étant données trois variables $x$, $y$ et $z$ et deux programmes $P_1$ et $P_2$, construire les machines suivantes en fonction de $M(P_1)$ et $M(P_2)$.
+  \begin{question}
+  \item $M(P_1 ; P_2)$.
+  \end{question}
+  \begin{correction}
+  \begin{tikzpicture}[turingMachine, baseline=(a1.base)]
+    \state[tm state, initial]   (a1) at (2,3) {}; 
+    \state[tm state]            (b1) at (4,3) {}; 
+    \state[tm state]            (a2) at (6,3) {}; 
+    \state[tm state, accepting] (b2) at (8,3) {}; 
+
+    \path[dashed] (a1) edge node{\footnotesize $M(P)$} (b1);
+    \path         (b1) edge node{$\varepsilon$}        (a2);
+    \path[dashed] (a2) edge node{\footnotesize $M(P)$} (b2);
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(a1.center)(b1.center)]         {};
+      \node[sub tm, fit=(a2.center)(b2.center)]         {};
+    \end{pgfonlayer}%
+  \end{tikzpicture}
+  \end{correction}
+  
+  \begin{question}
+  \item $M(x \leftarrow y + z)$. On supposera que $x$, $y$ et $z$ sont distinctes.
+  \end{question}
+  \begin{correction}
+  \begin{tikzpicture}[turingMachine, baseline=(0.base)]
+    \state[initial]   (0) at (0,1) {}; 
+    \state            (1) at (1,1) {}; 
+    \state            (2) at (2,1) {}; 
+    \state            (3) at (3,1) {}; 
+    \state            (4) at (4,1) {}; 
+    \state[accepting] (5) at (5,1) {}; 
+
+    \path   (0) edge[loop above] node{\smTMtransR[\textsc{x}]{x}{\blank}}                                        (0);
+    \path   (0) edge             node{\smTMtransS[\textsc{x}]{\blank}{\blank}}                                   (1);
+    \path   (1) edge[loop above] node{\smGroup{\smTMtransR[\textsc{y}]{x}{x}\smTMtransR[\textsc{x}]{\blank}{x}}} (1);
+    \path   (1) edge             node{\smTMtransL[\textsc{y}]{\blank}{\blank}}                                   (2);
+    \path   (2) edge[loop above] node{\smTMtransL[\textsc{y}]{x}{x}}                                             (2);
+    \path   (2) edge             node{\smTMtransR[\textsc{y}]{\blank}{\blank}}                                   (3);
+    \path   (3) edge[loop above] node{\smGroup{\smTMtransR[\textsc{z}]{x}{x}\smTMtransR[\textsc{x}]{\blank}{x}}} (3);
+    \path   (3) edge             node{\smTMtransL[\textsc{z}]{\blank}{\blank}}                                   (4);
+    \path   (4) edge[loop above] node{\smTMtransL[\textsc{z}]{x}{x}}                                             (4);
+    \path   (4) edge             node{\smTMtransR[\textsc{z}]{\blank}{\blank}}                                   (5);
+  \end{tikzpicture}
+  $(\forall x \in \Gamma)$
+  \end{correction}
+  
+  \begin{question}
+  \item $M(\texttt{if } x\neq y \texttt{ then } P_1 \texttt{ else } P_2 \texttt{ end})$.
+  \end{question}
+  \begin{correction}
+    \vspace{-1mm}
+    \begin{tikzpicture}[turingMachine, baseline=(0.base), x=15mm, y=6mm]
+    \state[tm state, initial]   (a)  at (2,3)  {}; 
+    \state[tm state]            (+)  at (4,4)  {$q_+$}; 
+    \state[tm state]            (-)  at (4,2)  {$q_-$}; 
+    \state[tm state]            (a1) at (6,2)  {}; 
+    \state[tm state]            (b1) at (8,2)  {}; 
+    \state[tm state]            (a2) at (6,4)  {}; 
+    \state[tm state]            (b2) at (8,4)  {}; 
+    \state[tm state, accepting] (b)  at (10,3) {}; 
+
+    \path[dashed] (a)  edge                              (+);
+    \path[dashed] (a)  edge                              (-);
+    \path[dashed] (a1) edge node{\footnotesize $M(P_1)$} (b1);
+    \path[dashed] (a2) edge node{\footnotesize $M(P_2)$} (b2);
+    \path         (+)  edge node{$\varepsilon$}          (a2);
+    \path         (-)  edge node{$\varepsilon$}          (a1);
+    \path         (b1) edge node{$\varepsilon$}          (b);
+    \path         (b2) edge node{$\varepsilon$}          (b);
+    \node at (3,3) {\footnotesize $x=y$};
+
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(a.center)(+.center)(-.center)]         {};
+      \node[sub tm, fit=(a1.center)(b1.center)]         {};
+      \node[sub tm, fit=(a2.center)(b2.center)]         {};
+    \end{pgfonlayer}%
+    \end{tikzpicture}
+    \vspace{-1mm}
+  \end{correction}
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item $M(\texttt{while } x \neq z \texttt{ do } P_1 \texttt{ end})$.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(0.base), x=30mm, y=20mm]
+
+      \state[tm state, initial above] (a)  at (2,2)  {}; 
+      \state[tm state, accepting]     (+)  at (1,2)  {$q_+$}; 
+      \state[tm state]                (-)  at (3,2)  {$q_-$}; 
+      \state[tm state]                (a1) at (3,1)  {}; 
+      \state[tm state]                (b1) at (2,1)  {}; 
+
+      \path[dashed] (a)  edge node[swap]{$x=y$}                  (+);
+      \path[dashed] (a)  edge node{$x\neq y$}              (-);
+      \path[dashed] (a1) edge node{$M(P_1)$} (b1);
+      \path         (-)  edge node{$\varepsilon$}          (a1);
+      \path         (b1) edge node{$\varepsilon$}          (a);
+      
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(a.center)(+.center)(-.center)] {};
+      \node[sub tm, fit=(a1.center)(b1.center)]         {};
+    \end{pgfonlayer}%
+
+    \end{tikzpicture}
+  \end{correction}
+  
+  On admettra que les autres constructions de IMP peuvent être compilées de manière similaire.
+  \begin{question}
+  \item En déduire la construction correspondante pour le programme suivant.
+    On pourra utiliser les machines correspondant aux affectations comme des boîtes noires, sans en détailler le fonctionnement interne.
+    $$
+    \begin{array}{l}
+      \mathit{empty}\leftarrow ``" ; \mathit{output}\leftarrow ``"; \mathit{a}\leftarrow ``a" ; \\
+      \texttt{while }\mathit{input} \neq \mathit{empty} \texttt{ do } \\
+      \quad  \mathit{tmp} ~~~\leftarrow \texttt{head}(\mathit{input}) ;\\
+      \quad  \mathit{input} \leftarrow \texttt{tail}(\mathit{input}) ; \\
+      \quad  \texttt{if }\mathit{tmp} \neq \mathit{a} \texttt{ then skip else } \\
+      \quad\quad  \mathit{output} \leftarrow \mathit{output} + \mathit{tmp} \\
+      \quad  \texttt{end }\\
+      \texttt{end}
+    \end{array}
+    $$
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(0.base), x=17mm, y=20mm] \scriptsize
+      \state[tm state, initial]   (03) at (0,3)  {}; 
+      \state[tm state]            (13) at (2,3)  {}; 
+      \state[tm state]            (23) at (3,3)  {}; 
+      \state[tm state]            (33) at (5,3)  {}; 
+      \state[tm state]            (43) at (6,3)  {}; 
+      \state[tm state]            (53) at (8,3)  {}; 
+      \state[tm state]            (02) at (0,2)  {}; 
+      \state[tm state]            (12) at (2,2)  {}; 
+      \state[tm state]            (22) at (3,2)  {}; 
+      \state[tm state]            (32) at (5,2)  {}; 
+      \state[tm state]            (42) at (6,2)  {}; 
+      \state[tm state]            (52) at (8,2)  {}; 
+      \state[tm state]            (01) at (0,1)  {}; 
+      \state[tm state]            (11) at (2,1)  {}; 
+      \state[tm state]            (21) at (3,1)  {}; 
+      \state[tm state]            (31) at (5,1)  {}; 
+      \state[tm state]            (41) at (6,1)  {}; 
+      \state[tm state]            (10) at (2,0)  {}; 
+      \state[tm state]            (20) at (3,0)  {}; 
+      \state[tm state]            (30) at (5,0)  {}; 
+      \state[tm state, accepting] (50) at (8,0)  {}; 
+      
+      \path[dashed] (03)  edge node         {$\mathit{empty}\leftarrow``"$} (13);
+      \path[dashed] (23)  edge node         {$\mathit{output}\leftarrow``"$} (33);
+      \path[dashed] (43)  edge node         {$\mathit{a}\leftarrow``a"$} (53);
+      \path[dashed] (32)  edge node[swap]   {$\mathit{tmp}\leftarrow \texttt{head}(\mathit{input})$} (22);
+      \path[dashed] (12)  edge node[swap]   {$\mathit{input}\leftarrow \texttt{tail}(\mathit{input})$} (02);
+      \path[dashed] (21)  edge node         {$\mathit{output}\leftarrow\mathit{output} +\mathit{tmp} $} (31);
+      \path[dashed] (52)  edge node[swap]   {$\mathit{input}\neq\mathit{empty}$} (42);
+      \path[dashed] (52)  edge node[sloped] {$\mathit{input}=\mathit{empty}$}    (50);
+      \path[dashed] (01)  edge node[sloped] {$\mathit{tmp}\neq\mathit{a}$} (10);
+      \path[dashed] (01)  edge node         {$\mathit{tmp}=\mathit{a}$}    (11);
+
+      \path         (13) edge node{$\varepsilon$}          (23);
+      \path         (33) edge node{$\varepsilon$}          (43);
+      \path         (53) edge node{$\varepsilon$}          (52);
+      \path         (42) edge node{$\varepsilon$}          (32);
+      \path         (22) edge node{$\varepsilon$}          (12);
+      \path         (02) edge node{$\varepsilon$}          (01);
+      \path         (11) edge node{$\varepsilon$}          (21);
+      \path         (31) edge node{$\varepsilon$}          (41);
+      \path         (10) edge node{$\varepsilon$}          (20);
+      \path         (20) edge node{$\varepsilon$}          (30);
+      \path         (30) edge node{$\varepsilon$}          (41);
+      \path         (41) edge node{$\varepsilon$}          (52);
+
+    \begin{pgfonlayer}{background}%
+      \node[sub tm, fit=(03.center)(13.center)]            {};
+      \node[sub tm, fit=(23.center)(33.center)]            {};
+      \node[sub tm, fit=(43.center)(53.center)]            {};
+      \node[sub tm, fit=(22.center)(32.center)]            {};
+      \node[sub tm, fit=(02.center)(12.center)]            {};
+      \node[sub tm, fit=(21.center)(31.center)]            {};
+      \fill[sub tm] (52.north)--(42.north)--(42.west)--(50.south)--(50.east)--(52.east);
+      \fill[sub tm] (11.north)--(01.north)--(01.west)--(10.south)--(10.east)--(11.east);
+    \end{pgfonlayer}%
+    \end{tikzpicture}
+  \end{correction}
+
+  On en déduit finalement que les fonctions calculables par un programme IMP
+  sont exactement les fonctions calculables par une machine de Turing.
+  
+\end{exercice}
+
+\endgroup
+\endinput

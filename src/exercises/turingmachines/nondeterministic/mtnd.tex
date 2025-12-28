@@ -1,0 +1,59 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Non deterministic Turing machines
+% Exercise: Executions of a non deterministic Turing machine
+
+\begingroup
+
+\begin{exercice}[Conception de machines de Turing non déterministes]
+
+  Construire une machine de Turing non déterministe qui accepte chacun des langages suivants.
+  
+  \begin{question}
+  \item $\{x x^\textsc{r} y \mid x, y \in \{a, b\}^\star \land |y| \le |x| \}$.
+  \end{question}
+  \begin{correction}
+    Initialement, le mot est écrit sur le ruban \textsc{i}. $\forall x, y \in \{a, b\}$ :
+    
+    \begin{tikzpicture}[turingMachine, baseline=(1), x=20mm]
+      \state[initial]   (0) at (0,0) {$0$};
+      \state            (1) at (1,0) {$1$};
+      \state            (2) at (2,0) {$2$};
+      \state[accepting] (3) at (3,0) {$3$};
+      \path (0) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransR[\textsc{x}]{\blank}{x}}} (0);
+      \path (1) edge[loop below] node {\smGroup{\smTMtransL[\textsc{i}]{x}{x}\smTMtransR[\textsc{x}]{x}{x}}}      (1);
+      \path (2) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransR[\textsc{x}]{y}{y}}}      (2);
+      \path (0) edge             node {\smTMtransL[\textsc{x}]{\blank}{\blank}}                                   (1);
+      \path (1) edge             node {\smTMtransR[\textsc{x}]{\blank}{\blank}}                                   (2);
+      \path (2) edge             node {\smTMtransL[\textsc{i}]{\blank}{\blank}}                                   (3);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item $\{w c x c y c x c z \mid x \in \{a, b\}^\star \land  w, y, z \in \{a, b, c\}^\star\}$.
+  \end{question}
+  \begin{correction}
+    Initialement, le mot est écrit sur le ruban \textsc{i}. $\forall x \in \{a, b\}, \forall y \in \{a, b, c\}$ :
+    
+    \begin{tikzpicture}[turingMachine, baseline=(1), x=20mm]
+      \state[initial]   (0) at (0,0) {$w$};
+      \state            (1) at (1,0) {$x$};
+      \state            (2) at (2,0) {$y$};
+      \state            (3) at (3,0) {$x$};
+      \state[accepting] (4) at (4,0) {$z$};
+      \path (0) edge[loop below] node {\smTMtransR[\textsc{i}]{y}{y}}                                                  (0);
+      \path (1) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransR[\textsc{x}]{\blank}{x}}}      (1);
+      \path (2) edge[loop below] node {\smAlign{\smTMtransR[\textsc{i}]{y}{y}\smTMtransL[\textsc{x}]{x}{x}}}           (2);
+      \path (3) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransR[\textsc{x}]{x}{x}}}           (3);
+      \path (0) edge             node {\smTMtransR[\textsc{i}]{c}{c}}                                                  (1);
+      \path (1) edge             node {\smGroup{\smTMtransR[\textsc{i}]{c}{c}\smTMtransL[\textsc{x}]{\blank}{\blank}}} (2);
+      \path (2) edge             node {\smGroup{\smTMtransR[\textsc{i}]{c}{c}\smTMtransR[\textsc{x}]{\blank}{\blank}}} (3);
+      \path (3) edge             node {\smGroup{\smTMtransR[\textsc{i}]{c}{c}\smTMtransL[\textsc{x}]{\blank}{\blank}}} (4);
+    \end{tikzpicture}
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

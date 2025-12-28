@@ -1,0 +1,296 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\newcommand\ERR{\textsc{err}}
+
+\begin{exercice}[Confluence d'un système de réécriture]
+
+  On rappelle qu'un système de réécriture de mots $(\Sigma^\star, \to)$ est \emph{localement confluent}
+  si, pour tout triplet de mots $u,v,w\in\Sigma^\star$,
+  $$
+  (u \to v \land u \to w) \;\Rightarrow\; \exists z,\; v \to^\star z \land w \to^\star z.
+  $$
+  On dit alors que la paire $\langle v, w \rangle$ est \emph{joignable}.
+  Une paire $\langle v, w \rangle$ est dite \emph{critique}
+  lorsqu'elle provient de deux règles dont 
+  \begin{enumerate}
+  \item les membres gauches se \emph{chevauchent} dans un même mot $u$,
+  \item le membre gauche de l'une apparaît comme un préfixe de $u$, et
+  \item celui de l'une ou de l'autre comme un suffixe.
+  \end{enumerate}
+  Pour déterminer si un système de réécriture est localement confluent,
+  il suffit de vérifier que toutes ses paires critiques sont joignables.
+
+
+  Le but de cet exercice est de construire, étape par étape,
+  une réduction du problème de l'arrêt
+  vers le problème suivant, et d'en déduire son indécidabilité.
+
+  \Probleme{Confluence locale}{
+    Un système de réécriture $\rightarrow$ de mots sur un alphabet $\Sigma$,
+    défini par un ensemble fini de règles $\{l_1\hookrightarrow r_1,\dots,l_n\hookrightarrow r_n\}$.
+  }{
+    Le système de réécriture $\rightarrow$ est-il localement confluent ?
+  }
+
+  Considérons les deux systèmes de réécriture suivants :
+  $$
+  R_1 =
+  \left\{\begin{array}{r@{~\hookrightarrow~}l}
+  S & Pabaab\\
+  S & I     \\
+  P a & I   \\
+  P b & P   \\
+  I a & P   \\
+  I b & I
+  \end{array}\right.
+  \quad\quad
+  R_2 =
+  \left\{\begin{array}{r@{~\hookrightarrow~}l}
+  S & Pabaaab\\
+  S & I     \\
+  P a & I   \\
+  P b & P   \\
+  I a & P   \\
+  I b & I
+  \end{array}\right.
+  $$
+  \begin{question}
+  \item Les systèmes $R_1$ et $R_2$ sont-ils localement confluent ?
+  \end{question}
+  \begin{correction}
+    La seule paire critique de chacun des deux systèmes provient du symbole $S$, avec
+    $S \to Pv$ et  $S \to I$.
+    Le système est localement confluent ssi ces deux branches sont joignables. Comme $I$ est en forme normale,
+    il faut $Pv\to^\star I$.
+    
+    \begin{itemize}
+    \item Pour $R_1$, on a $Pabaab \rightarrow Ibaab \rightarrow Iaab \rightarrow Pab \rightarrow Ib \rightarrow I$, donc $R_1$ est localement confluent.
+    \item Pour $R_2$, on a $Pabaaab \rightarrow Ibaaab \rightarrow Iaaab \rightarrow Paab \rightarrow Iab \rightarrow Pb \rightarrow P$,
+      donc $R_2$ ne l'est pas.
+    \end{itemize}
+  \end{correction}
+
+  On définit maintenant la fonction suivante :
+  $$
+  f : \left\{
+  \begin{array}{rcl}
+    \{a,b\}^\star &\to& \textsc{Confluence locale}_{\mathcal{I}}\\[0.2em]
+    v &\mapsto&
+    \left\{
+    \begin{array}{r@{~\hookrightarrow~}l}
+      S & P v \\
+      S & I   \\
+      P a & I \\
+      P b & P \\
+      I a & P \\
+      I b & I
+    \end{array}
+    \right.
+  \end{array}\right.
+  $$
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item 
+    Pour quel problème \textsc{Mystère} la fonction $f$ définit-elle une réduction vers
+    \textsc{Confluence locale} ?  
+    (Autrement dit, quel est le problème \textsc{Mystère} tel que
+    $v\in \textsc{Mystère} \iff f(v)$ est localement confluent ?)
+  \end{question}
+  \begin{correction}
+    En général, $f(v)$ est localement confluent ssi $Pv\to^\star I$. 
+    Or la suite de mots de la réduction en forme normale de $Pv$ correspond à la suite de configurations dans l'exécution de
+    l'automate suivant sur le mot $v$. Ainsi, $Pv$ et $I$ sont joignables ssi $v$ est reconnu par l'automate. 
+    \begin{center}
+      \begin{tikzpicture}[turingMachine]
+        \state[initial above] (0) at (0,1) {$P$}; 
+        \state[accepting]     (1) at (1,1) {$I$}; 
+
+        \path (0) edge[bend left] node {$a$} (1);
+        \path (1) edge[bend left] node {$a$} (0);
+        \path (0) edge[loop left] node {$b$} (0);
+        \path (1) edge[loop right] node {$b$} (1);
+      \end{tikzpicture}
+    \end{center}
+    L'automate reconnaît le langage $\textsc{Mystère} = \{u \in \{a, b\}^\star \mid |u|_a \text{ est impair}\}$.
+  \end{correction}
+  
+  \ifnotcorrection{\newpage}
+  \begin{question}
+  \item On cherche maintenant à reproduire la même idée avec une machine de Turing.
+    Pour tout mot $v\in{a,b}^\star$, définir un système de réécriture $g(v)$ sur un alphabet
+    $\Delta$ (à préciser) tel que la paire critique issue de $S$ est joignable si,
+    et seulement si, le mot $v$ est \emph{engendré} par la machine de Turing suivante.
+
+    \begin{center}
+      \begin{tikzpicture}[turingMachine]
+        \state[initial above, accepting] (0) at (0,1) {$0$}; 
+        \state[]                         (1) at (1,1) {$1$}; 
+
+        \path (0) edge[bend left] node {\smTMtransR{\blank}{a}} (1);
+        \path (1) edge[bend left] node {\smTMtransL{\blank}{b}} (0);
+        \path (0) edge[loop left] node {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}}} (0);
+        \path (1) edge[loop right] node {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}} (1);
+      \end{tikzpicture}
+    \end{center}
+  \end{question}
+  \begin{correction}
+    On se place sur l'alphabet $\Delta = \{\llparenthesis, \rrparenthesis, S, a, b, \blank, 0, 1\}$. 
+    $$
+    g(v) = 
+    \left\{\begin{array}{r@{~\hookrightarrow~}ll}
+    S               & \llparenthesis0\rrparenthesis  & \text{configuration initiale}\\
+    S               & \llparenthesis0v\rrparenthesis & \text{configuration finale}\\
+    \llparenthesis         & \llparenthesis\blank    & \text{ajout d'un caractère blanc à gauche}\\
+    \llparenthesis\blank   & \llparenthesis          & \text{suppression d'un caractère blanc à gauche}\\
+    \rrparenthesis         & \blank \rrparenthesis   & \text{ajout d'un caractère blanc à droite}\\
+    \blank \rrparenthesis  & \rrparenthesis          & \text{suppression d'un caractère blanc à droite}\\
+    0\blank         & a1               & \text{transition $0\xrightarrow{\smTMtransR{\blank}{a}} 1$}\\
+    1a              & a1               & \text{transition $1\xrightarrow{\smTMtransR{a}{a}} 1$}\\
+    1b              & b1               & \text{transition $1\xrightarrow{\smTMtransR{b}{b}} 1$}\\
+    \alpha 1 \blank & 0 \alpha b & \forall \alpha \in \{a, b, \blank\} : \text{transition $1\xrightarrow{\smTMtransL{\blank}{b}} 0$}\\ 
+    \alpha 0 a      & 0 \alpha a & \forall \alpha \in \{a, b, \blank\} : \text{transition $0\xrightarrow{\smTMtransL{a}{a}} 0$}\\ 
+    \alpha 0 b      & 0 \alpha b & \forall \alpha \in \{a, b, \blank\} : \text{transition $0\xrightarrow{\smTMtransL{b}{b}} 0$}
+    \end{array}\right.
+    $$
+  \end{correction}
+  
+  \ifcorrection{\newpage}
+  \begin{question}
+  \item Listez toutes les paires critiques du système $g(v)$ selon les trois catégories suivantes
+    et justifiez qu'il n'en existe pas d'autre :
+    \begin{enumerate}
+    \item\label{confluence:critical:S} la paire critique issue du symbole $S$ ;
+    \item\label{confluence:critical:invalid} les paires critiques provenant de mots contenant plus d'un \emph{symbole d'état}
+      (ces mots ne représentent pas une configuration valide de la machine, et ne peuvent pas être atteints depuis $S$) ;
+    \item\label{confluence:critical:blank} les paires critiques provenant de la gestion des symboles blancs aux bords du ruban.
+    \end{enumerate}
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item La seule paire critique issue de $S$ est $\langle \llparenthesis 0 \rrparenthesis, \llparenthesis 0 v \rrparenthesis  \rangle$.
+    \item On cherche des mots $\alpha q_1 \beta q_2 \gamma$ (resp. $q_1 \beta q_2 \gamma$), tels que $\alpha q_1 \beta$ (resp. $\alpha q_1 \beta$)
+      et $\beta q_2 \gamma$ sont les membres gauches de règles venant des transitions. Par exemple, $1a0a$ donne la paire $\langle a10a, 10aa  \rangle$,
+      et $\blank 0 a 0 b$ donne la paire $\langle 0 \blank a 0 b, \blank 0 0 a b \rangle$.
+    \item On a les paires issues de l'intéraction entre $\llparenthesis\blank$ et les règles commençant par un $\blank$
+      (par exemple, $\llparenthesis\blank 0 a$ donne la paire critique $\langle \llparenthesis 0 a, \llparenthesis 0 \blank a\rangle$),
+      et les paires issues de l'intéraction entre $\blank \rrparenthesis$ et les règles finissant par un $\blank$
+      (par exemple, $0 \blank \rrparenthesis$ donne la paire critique $\langle 0 \rrparenthesis, a1 \rrparenthesis\rangle$).
+    \end{enumerate}
+  \end{correction}
+  
+  \begin{question}
+  \item Montrez que les paires critiques de la catégorie (\ref{confluence:critical:blank}) sont joignables.
+  \end{question}
+  \begin{correction}
+    Le système de réécriture est joignable ssi le mot est engendré par la machine de Turing ci-dessus, donc
+    $\{a^nb^n \mid n\in \mathbb{N}\} \le_m \textsc{Confluence locale}$. 
+  \end{correction}
+
+  \begin{correction}
+    \begin{enumerate}
+    \item La seule paire critique issue de $S$ est $\langle \llparenthesis 0 \rrparenthesis, \llparenthesis 0 v \rrparenthesis  \rangle$.
+    \item On cherche des mots $\alpha q_1 \beta q_2 \gamma$ (resp. $q_1 \beta q_2 \gamma$), tels que $\alpha q_1 \beta$ (resp. $\alpha q_1 \beta$)
+      et $\beta q_2 \gamma$ sont les membres gauches de règles venant des transitions. Par exemple, $1a0a$ donne la paire $\langle a10a, 10aa  \rangle$,
+      et $\blank 0 a 0 b$ donne la paire $\langle 0 \blank a 0 b, \blank 0 0 a b \rangle$.
+    \item On a les paires issues de l'intéraction entre $\llparenthesis\blank$ et les règles commençant par un $\blank$
+      (par exemple, $\llparenthesis\blank 0 a$ donne la paire critique $\langle \llparenthesis 0 a, \llparenthesis 0 \blank a\rangle$),
+      et les paires issues de l'intéraction entre $\blank \rrparenthesis$ et les règles finissant par un $\blank$
+      (par exemple, $0 \blank \rrparenthesis$ donne la paire critique $\langle 0 \rrparenthesis, a1 \rrparenthesis\rangle$).
+    \end{enumerate}
+  \end{correction}
+
+  Pour traiter les paires critiques de la catégorie~(\ref{confluence:critical:invalid}),
+  on introduit deux symboles supplémentaires (le marqueur `?' et `\ERR{}') et les règles suivantes : 
+  $$
+  \left\{\begin{array}{r@{~\hookrightarrow~}ll}
+  q   & q ?  & \text{pour tout état } q \in \{0,1\},\\
+  ? q & \ERR & \text{pour tout état } q \in \{0,1\},\\
+  ? \alpha & \alpha ? & \text{pour tout } \alpha\in\Delta,\\
+  ? & \varepsilon,\\
+  \ERR \alpha & \ERR & \text{pour tout } \alpha\in\Delta,\\
+  \alpha \ERR & \ERR & \text{pour tout } \alpha\in\Delta.\\
+  \end{array}\right.
+  $$
+
+  On admettra que toutes les paires critiques introduites par ces nouvelles règles sont joignables.
+
+  \begin{question}
+  \item Montrez que tout mot $u$ contenant au moins deux symboles d'état peut se réécrire en une ou plusieurs étapes en $\ERR$,
+    et en déduire que toutes les paires critiques de la catégorie~(\ref{confluence:critical:invalid}) sont joignables.
+  \end{question}
+  \begin{correction}
+    Les paires critiques de la troisième catégorie utilisent toutes la règle $\llparenthesis \blank \hookrightarrow \llparenthesis$
+    ou la règle $\blank\rrparenthesis \hookrightarrow \rrparenthesis$. Or ces deux règles sont réversibles. 
+  \end{correction}
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item Entre quels problèmes la réduction construite dans les questions précédentes établit-elle un lien, et dans quel sens ?  
+  \end{question}
+  \begin{correction}
+    Soit $u = v q_1 \alpha_1 ... \alpha_n q_2 w$ un mot contenant au moins deux symboles d'état. On a :
+    $$
+    \begin{array}{rcl}
+      u &\rightarrow& v q_1 ? \alpha_1 ... \alpha_n q_2 w \\
+      &\rightarrow& v q_1 \alpha_1 ? ... \alpha_n q_2 w \\
+      &\rightarrow^\star& v q_1 \alpha_1 ... \alpha_n ? q_2 w \\
+      &\rightarrow& v q_1 \alpha_1 ... \alpha_n \ERR w \\
+      &\rightarrow^\star& v q_1 \alpha_1 ... \alpha_n \ERR \\
+      &\rightarrow^\star& v q_1 \ERR \\
+      &\rightarrow& v \ERR \\
+      &\rightarrow^\star& \ERR
+    \end{array}
+    $$
+
+    Toutes les paires critiques de la catégorie (2) sont formées de mots contenant deux symboles d'état, donc elles sont toujours joignables en \ERR. 
+  \end{correction}
+
+  \begin{question}
+  \item En généralisant cette construction à une machine de Turing arbitraire $M$ \emph{configurée pour la reconnaissance}
+    (qui, si elle s'arrête, efface entièrement son ruban et entre dans un état final $q_f$),
+    montrez que le problème \textsc{Confluence locale} est indécidable
+    par réduction du problème de l'arrêt.
+  \end{question}
+  \begin{correction}
+    On pose la réduction suivante : 
+    $$
+    r : \left\{\begin{array}{rcl}
+    \textsc{halt}_\mathcal{I} & \rightarrow & \textsc{Confluence locale}_\mathcal{I}\\
+    \langle \langle \Sigma, \Gamma, \blank, Q, q_0, \{q_f\}, \rightarrow \rangle , v \rangle & \mapsto &
+    \left\{\begin{array}{r@{~\hookrightarrow~}ll}
+    S                     & \llparenthesis q_0 v \rrparenthesis & \text{configuration initiale}\\
+    S                     & \llparenthesis q_f \rrparenthesis   & \text{configuration finale}\\
+    \llparenthesis        & \llparenthesis\blank                & \text{ajout de \blank\ à gauche}\\
+    \llparenthesis\blank  & \llparenthesis                      & \text{suppression de \blank\ à gauche}\\
+    \rrparenthesis        & \blank \rrparenthesis               & \text{ajout de \blank\ à droite}\\
+    \blank \rrparenthesis & \rrparenthesis                      & \text{suppression de \blank\ à droite}\\
+    q \alpha              & \beta q'                            & \forall q\xrightarrow{\smTMtransR{\alpha}{\beta}} q'\\
+    \gamma q \alpha       & q' \gamma \beta                     & \forall q\xrightarrow{\smTMtransL{\alpha}{\beta}} q', \gamma\in \Gamma\\
+    q   & q ?  & \forall q \in Q\\
+    ? q & \ERR & \forall q \in Q\\
+    ? \gamma & \gamma ? & \forall \gamma \in \Gamma\\
+    ? & \varepsilon\\
+    \ERR\ \alpha & \ERR & \forall \alpha\in \Gamma \cup Q \cup \{\llparenthesis, \rrparenthesis, ?, \ERR\}\\
+    \alpha\ \ERR & \ERR & \forall \alpha\in \Gamma \cup Q \cup \{\llparenthesis, \rrparenthesis, ?, \ERR\}
+    \end{array}\right.
+    \end{array}\right.
+    $$
+
+    La paire critique issue de $S$ est joignable ssi $q_0 v \rightarrow^\star q_f$, ssi $M$ s'arrête sur $v$.
+    Les autres paires critiques sont joignables pour la même raison que dans l'exemple précédent.
+    Ainsi, $r\langle M, v \rangle$ est localement confluente si et seulement si $M$ s'arrête sur $v$. 
+    La transformation $r$ est calculable, donc $$\textsc{Halt}\ \le_m\ \textsc{Confluence locale}.$$
+    Finalement, \textsc{Confluence locale} est indécidable.
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

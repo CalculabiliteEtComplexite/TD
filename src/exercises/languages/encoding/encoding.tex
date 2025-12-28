@@ -1,0 +1,242 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Encoding of problems into langugages
+% Exercise: Diameter of a graph
+
+\begingroup
+
+\SetKwFunction{Encode}{encode}
+\SetKwFunction{Decide}{decide\_diam\_inf}
+\SetKwFunction{Diam}{diameter}
+
+\begin{exercice}[Diamètre d'un graphe]
+
+  On considère dans cet exercice des graphes simples, non orientés et finis.
+  Un graphe est noté $G=\langle V, E\rangle$, où $V$ est l'ensemble des sommets et
+  $E\subseteq \{\{u,v\}\mid u,v\in V,\ u\neq v\}$ est l'ensemble des arêtes.
+  Dans cet exercice, on supposera que $V$ est de la forme $\{1,\dots,|V|\}$.
+  \begin{itemize}
+  \item Un \emph{chemin} de $G$ est une suite finie de sommets $(v_0, v_1, \dots, v_k)$ telle que,
+    pour tout $0\le i<k$, $\{v_i,v_{i+1}\}\in E$.
+    La \emph{longueur} d'un chemin est le nombre d'arêtes qu'il contient, c'est-à-dire $k$.
+
+  \item Pour deux sommets $u,v\in V$, on appelle \emph{distance entre $u$ et $v$}, notée $d_G(u,v)$,
+    la longueur minimale d'un chemin reliant $u$ à $v$ dans $G$ ; si aucun chemin n'existe, on pose $d_G(u,v)=+\infty$.
+
+  \item Le \emph{diamètre} du graphe $G$ est la plus grande distance entre deux sommets : 
+    $\mathrm{diam}(G) \eqdef \max_{u,v\in V} d_G(u,v)$.
+  \end{itemize}
+  
+  \begin{question}
+  \item Pour chacun des graphes ci-dessous, calculer le diamètre du graphe et exhiber une paire de sommets atteignant la distance maximale.
+  \begin{center}
+    \begin{tikzpicture}[x=10mm, y=10mm]
+      \node at (3,2) {$G_1$};
+      \node[graph node, circle] (1) at (1,2) {1};
+      \node[graph node, circle] (2) at (2,1) {2};
+      \node[graph node, circle] (3) at (3,0) {3};
+      \node[graph node, circle] (4) at (4,1) {4};
+      \node[graph node, circle] (5) at (5,2) {5};
+
+      \draw[thick] (1) -- (2) -- (3) -- (4) -- (5);
+      \draw[thick] (2) -- (4);
+    \end{tikzpicture}
+    \quad\quad\quad
+    \begin{tikzpicture}[x=10mm, y=10mm]
+      \node at (3,2) {$G_2$};
+      \node[graph node, circle] (1) at (1,1) {1};
+      \node[graph node, circle] (2) at (2,2) {2};
+      \node[graph node, circle] (3) at (2,0) {3};
+      \node[graph node, circle] (4) at (3,1) {4};
+      \node[graph node, circle] (5) at (4,2) {5};
+      \node[graph node, circle] (6) at (4,0) {6};
+      \node[graph node, circle] (7) at (5,1) {7};
+
+      \draw[thick] (4) -- (3) -- (1) -- (2) -- (4) -- (5) -- (7) -- (6) -- (4);
+    \end{tikzpicture}
+  \end{center}
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item $\mathrm{diam}(G_1)=3$. La distance maximale est atteinte pour le couple $\langle 1, 5 \rangle$.
+    \item $\mathrm{diam}(G_2)=4$. La distance maximale est atteinte pour le couple $\langle 1, 7 \rangle$.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Donner un exemple de graphe connexe à $n$ sommets de diamètre $1$, $2$ et $n-1$.
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item diamètre $1$ : le graphe complet $K_n$ ;
+    \item diamètre $2$ : l'étoile $S_n$ (centre + $n-1$ feuilles) ;
+    \item diamètre $n-1$ : le chemin $P_n$.
+    \end{itemize}
+  \end{correction}
+
+  On s'intéresse maintenant plus précisément aux deux problèmes suivants. 
+  
+  \Probleme{diam}{
+    Un graphe $G = \langle V, E\rangle$.
+  }{
+    Le diamètre du graphe $G$. 
+  }
+
+  \Probleme{diam\_inf}{
+    Un graphe $G = \langle V, E\rangle$, et un entier $k\in\mathbb{N}$.
+  }{
+    Est-ce que le diamètre du graphe $G$ est inférieur ou égal à $k$ ?
+  }
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item Les problèmes \textsc{diam} et \textsc{diam\_inf} sont-ils des problèmes de décision ?
+  \end{question}
+  \begin{correction}
+    Un problème de décision doit avoir une réponse binaire (\textsf{oui}/\textsf{non}).
+    \textsc{diam} demande en sortie un entier, donc ce n'est pas un problème de décision.
+    Par contre, \textsc{diam\_inf} est un problème de décision. 
+  \end{correction}
+
+  On suppose disposer d'un algorithme \Decide qui décide le problème \textsc{diam\_inf}.
+  
+  \begin{question}
+  \item Proposer un algorithme déterministe \Diam qui calcule le diamètre d'un graphe $G$ en utilisant  \Decide comme sous-routine.
+    On pourra utiliser le fait que, pour un graphe connexe à $n$ sommets, $0\le \Diam(G)\le n-1$.
+  \end{question}
+  \begin{correction}
+    On peut faire une recherche linéaire, mais elle fera $n$ appels.
+    On effectue ici une recherche dichotomique sur $k\in\{0,\dots,n-1\}$,
+    en exploitant la monotonie de la propriété ``$\Diam(G)\le k$'' par rapport à $k$.
+
+    \begin{algorithm}[H]
+      \Fun{$\Diam(G = \langle V, E \rangle) \in \mathbb{N}$}{
+        \lIf{$\lnot \Decide(G, |V|-1)$}{\Return $+\infty$;}
+        $\mathit{min} \leftarrow 0$;\\
+        $\mathit{max} \leftarrow |V|-1$;\\
+        \While{$\mathit{min} < \mathit{max}$}{
+          $\mathit{mid} \leftarrow \lfloor(\mathit{min} + \mathit{max})/2\rfloor$\;
+          \lIf{$\Decide(G, \mathit{mid})$}{$\mathit{max} \leftarrow \mathit{mid}$;}
+          \lElse{$\mathit{min} \leftarrow \mathit{mid}+1$;}
+        }
+        \Return $\mathit{min}$\;
+      }
+    \end{algorithm}
+  \end{correction}
+  
+
+  On suppose que de plus que \Decide s'exécute en temps $\mathcal{O}\left( f(|V|, |E|) \right)$, pour une certaine fonction $f$.
+  \begin{question}
+  \item Donner une borne sur le nombre d'appels à la fonction \Decide effectués par l'algorithme \Diam de la question précédente,
+    et en déduire la complexité totale en fonction de $f(|V|, |E|)$ et de $G$.
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item La recherche dichotomique sur un intervalle de taille $n$ effectue
+      $\lceil\log_2(n)\rceil$ itérations, donc $\mathcal{O}(\log(|V|))$ appels à \Decide.
+
+      Chaque appel à \Decide prend un temps $\mathcal{O}(f(|V|, |E|))$.
+      Le reste des opérations (mise à jour des bornes, calcul du milieu, etc.)
+      est polynomial par rapport au nombre de bits nécessaires pour coder un identifiant de n\oe ud,
+      donc $\mathcal{O}(\log{|V|})$.
+      En pratique, ce temps est négligeable par rapport à $f(|V|, |E|)$.
+
+      On obtient donc un temps total $\mathcal{O}\left(\log(|V|) \cdot f(|V|, |E|) \right)$.
+      
+      Si l'on utilise une recherche linéaire, on obtient $\mathcal{O}\left(|V| \cdot f(|V|, |E|) \right)$.
+    \end{enumerate}
+  \end{correction}
+
+  \begin{question}
+  \item On suppose qu'il a été démontré que tout algorithme calculant $\Diam(G)$
+    nécessite au moins $g(|V|, |E|)$ étapes dans le pire cas, pour une certaine fonction $g$.
+    Que peut-on en déduire sur la complexité temporelle du problème $\textsc{diam\_inf}$ ?
+  \end{question}
+  \begin{correction}
+    La complexité temporelle du problème $\textsc{diam\_inf}$ est $\Omega(\frac{g(|V|, |E|)}{\log(|V|)})$.
+    
+    Supposons, par contradiction, qu'il existe un algorithme qui décide $\textsc{diam\_inf}$
+    en $f(|V|, |E|) < \frac{g(|V|, |E|)}{\log(|V|)}$ étapes.
+    Alors notre algorithme \Diam calcule le diamètre de $G = \langle V, E\rangle$ en
+    au plus
+
+    \vspace{-2mm}
+    $$\log(|V|) \cdot f(|V|, |E|) < \log(|V|) \cdot \frac{g(|V|, |E|)}{\log(|V|)} = g(|V|, |E|)$$
+
+    \vspace{-2mm}
+    étapes.
+    Contradiction.
+  \end{correction}
+  
+  \begin{question}
+  \item Réciproquement, on suppose qu'il a été démontré que tout algorithme décidant
+    $\textsc{diam\_inf}$ nécessite au moins $h(|V|, |E|)$ étapes dans le pire cas.
+    Que peut-on en déduire sur la complexité temporelle du problème $\textsc{diam}$ ?
+  \end{question}
+  \begin{correction}
+    \emph{Attention} : la réduction explorée dans cet exercice ne permet pas de conclure sur la
+    complexité de $\textsc{diam}$. Cependant, on peut introduire une réduction dans l'autre sens.
+    
+    \begin{algorithm}[H]
+      \Fun{$\Decide(G = \langle V, E \rangle, k \in \mathbb{N}) \in \mathbb{B}$}{
+        \Return $\Diam(G) \le k$\;
+      }
+    \end{algorithm}
+
+    Par le même raisonnement, on en déduit que
+    la complexité temporelle de $\textsc{diam}$ est $\Omega(h(|V|, |E|))$.
+  \end{correction}
+
+  On veut maintenant définir formellement le problème \textsc{diam\_inf} comme un problème de décision sur les langages.
+  On fixe l'alphabet $\Sigma = \{0,1,\#,\rightarrow\}$.
+  Pour tout entier $x\in\mathbb{N}$, on note $\langle x\rangle$ son écriture binaire sans zéro initial.
+
+  On considère l'encodage suivant des graphes simples non orientés.
+  Soit $G=\langle V,E\rangle$ un graphe dont les sommets sont numérotés
+  $V=\{1,\dots,n\}$.
+  On encode $G$ par le mot
+  $
+  \langle G\rangle \eqdef
+  \langle n\rangle
+  \#
+  \langle u_1\rangle \rightarrow \langle v_1\rangle
+  \# \cdots \#
+  \langle u_m\rangle \rightarrow \langle v_m\rangle,
+  $
+  où chaque arête $\{u_i,v_i\}\in E$ est écrite exactement une fois, avec la convention
+  $1 \le u_i < v_i \le n$.
+  L'ordre des arêtes est arbitraire.
+
+  \begin{question}
+  \item Donnez un encodage du graphe $G_1$ dans ce langage.
+  \end{question}
+  \begin{correction}
+    $\langle G_1 \rangle = 101\#1\rightarrow10\#10\rightarrow11\#11\rightarrow100\#100\rightarrow101\#10\rightarrow101$
+  \end{correction}
+
+  \begin{question}
+    \item Définissez le langage $L_{\textsc{diam\_inf}}$ des encodages des instances positives du problème \textsc{diam\_inf}.
+  \end{question}
+  \begin{correction}
+    $L_{\textsc{diam\_inf}} \eqdef \{ \langle G \rangle \# \langle k \rangle \mid \mathrm{diam}(G) \le k \}$.
+  \end{correction}
+
+  \begin{question}
+  \item En déduire une borne sur la complexité de \Diam en fonction de $f$ et de la taille de son entrée. 
+  \end{question}
+  \begin{correction}
+    Dans l'encodage choisi, on a $|\langle n\rangle| = \Theta(\log n)$ et,
+    pour chaque arête, $|\langle u_i\rangle|$ et $|\langle v_i\rangle|$ valent $\Theta(\log n)$, puisque $1\le u_i,v_i\le n$.
+    Chaque arête contribue donc $\Theta(\log n)$ bits (à une constante près), et les séparateurs contribuent $O(1)$.
+    Ainsi, $|\langle G \rangle \# \langle k \rangle| = \Theta(\log(n) + m\log(n) + \log(n)) = \Theta(m\log n)$.
+
+    On peut réécrire la complexité obtenue uniquement en fonction de la taille $s$ de l'entrée.
+    L'algorithme \Diam s'exécute donc en temps
+    $\mathcal{O}\left(\log(s) \cdot f(s, s)\right)$.
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

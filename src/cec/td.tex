@@ -1,0 +1,199 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+
+\ifdefined\CORRECTION
+  \documentclass[livret, correction]{td}
+\else
+  \documentclass[livret]{td}
+\fi
+
+\typeTD
+
+\makeatletter
+\def\input@path{{src/exercises}}
+\makeatother
+
+\usepackage[T1]{fontenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath,amssymb, mathrsfs, stmaryrd}
+\newcommand\eqdef{\stackrel{\text{def}}{=}}
+
+\PassOptionsToPackage{vlined}{algorithm2e}
+\usepackage{algos}
+\usepackage{statemachines}
+\usepackage{trees}
+\usepackage{dominos}
+\usetikzlibrary{decorations.pathmorphing, backgrounds, fit}
+
+\codeUE{XLG6IU350}
+\intituleUE{Calculabilité et complexité}
+\typeTD
+
+\author[Matthieu Perrin]{
+  Matthieu \textsc{Perrin}\\
+  Nantes Université\\
+  Laboratoire des Sciences du Numérique de Nantes \\
+  UMR CNRS 6004\\
+  Bureau 410, bâtiment 34 \\
+  \url{matthieu.perrin@univ-nantes.fr}\\
+}
+
+\institution{Nantes Université}
+
+\logo{src/img/logoUN.png}
+
+\cursus[L3 Informatique]{
+  \begin{tabular}[b]{l}
+    UFR Sciences et Techniques\\
+    Licence Informatique et Info-Maths\\
+    3\ieme{} année\\
+  \end{tabular}
+}
+
+\usepackage{pdfpages}
+\hypersetup{
+  pdftitle  = {Calculabilité et Complexité -- Livret de TD},
+  pdfauthor = {Matthieu Perrin},
+  pdfsubject  = {Livret de TD de L3 sur la théorie de la calculabilité et la complexité},
+  pdfkeywords = {machines de Turing, réductions, décision, P versus NP}
+}
+
+
+\newmdenv[linewidth=.5pt,
+  innerleftmargin=8pt,
+  innerrightmargin=8pt,
+  innertopmargin=8pt,
+  innerbottommargin=8pt]{problembox}
+
+\newcommand\Probleme[3]{
+  \begin{center}
+    \begin{minipage}{14cm}
+      \begin{problembox}
+        \textsc{#1}
+        \begin{description}
+        \item[Instance :]#2
+        \item[Question :]#3
+        \end{description}
+      \end{problembox}
+    \end{minipage}
+  \end{center}
+}
+
+\newcommand\Minibox[1]{
+  \begin{center}
+    \begin{minipage}{14cm}
+      \begin{problembox}
+        #1
+      \end{problembox}
+    \end{minipage}
+  \end{center}
+}
+
+\tikzset{
+  graph node/.style={
+    rounded corners,
+    draw,
+    fill=black!10,
+    align=center,
+  },
+}
+
+\usepackage{cleveref}
+
+\usepackage{subcaption}
+\newcounter{indepfig}
+
+\makeatletter
+\AtBeginEnvironment{subfigure}{%
+  \refstepcounter{indepfig}%
+  \def\theHsubfigure{\theindepfig}% (pour hyperref)
+  \edef\@currentlabel{\theindepfig}% (pour \ref)
+  \def\thesubfigure{\theindepfig}% (pour les \refs internes)
+}
+
+\renewcommand\p@subfigure{}%
+
+\DeclareCaptionLabelFormat{indep-fig}{\figurename~\theindepfig}
+\captionsetup[subfigure]{labelformat=indep-fig,labelsep=colon}
+\makeatother
+
+
+\begin{document}
+
+
+\maketitlepage
+
+
+\session{Automates finis}
+\input{languages/automata/determinisation}
+\input{languages/automata/write_automata}
+\input{languages/automata/complexity}
+ 
+ 
+\session{Automates à pile}
+\input{languages/pushdown/definitions}
+\input{languages/pushdown/write_pushdown}
+ 
+ 
+\session{Analyse des grammaires contextuelles}
+\input{languages/grammars/brute_force}
+\input{languages/grammars/general}
+ 
+ 
+\session{La hiérarchie de Chomsky}
+\input{languages/chomsky/copy}
+\input{languages/chomsky/types}
+ 
+ 
+\session{Encodage des problèmes}
+\input{languages/encoding/encoding}
+ 
+ 
+\session{Machines de Turing déterministes}
+\input{turingmachines/definitions/executions}
+\input{turingmachines/definitions/languages}
+\input{turingmachines/definitions/exploration}
+ 
+ 
+\session{Expressivité des machines de Turing}
+\input{turingmachines/expressiveness/at}
+\input{turingmachines/expressiveness/models}
+ 
+ 
+\session{Thèse de Church-Turing}
+\input{turingmachines/church/imp}
+ 
+ 
+\session{Machines de Turing non déterministes}
+\input{turingmachines/nondeterministic/executions}
+\input{turingmachines/nondeterministic/mtnd}
+ 
+\ifnotcorrection{\newpage}~
+\session{Confluence d'un système de réécriture}
+\input{reductions/computability/confluence} 
+ 
+ 
+\session{Intersection de langages algébriques}
+\input{reductions/computability/intersection}
+ 
+ 
+\session{Introduction à la complexité}
+\input{reductions/complexity/definitions}
+\newpage
+\input{reductions/complexity/complexity_algo}
+ 
+ 
+\session{Le problème de correspondance de Post borné}
+\input{turingmachines/nondeterministic/pcp}
+ 
+ 
+\ifnotcorrection{\newpage}~
+\session{Le problème des circuits hamiltoniens}
+\input{reductions/complexity/hamiltonian}
+ 
+ 
+\session{Ensembles stables d'un graphe}
+\input{reductions/complexity/independant}
+
+\end{document}
+
+\endinput

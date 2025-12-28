@@ -1,0 +1,202 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\begin{exercice}[Intersection de langages algébriques]\label{exo:reductions/computability/intersection}
+  Soit $\Sigma = \{a, b\}$ un alphabet. On rappelle la définition du Problème de Correspondance de Post (PCP) sur $\Sigma$.
+
+  \Probleme{PCP}{
+    Un ensemble fini non-vide de dominos $D = \left\{ \VDomino{u_1}{v_1}, ..., \VDomino{u_n}{v_n} \right\} \subseteq \Sigma^+ \times \Sigma^+$.
+  }{
+    Existe-t-il un mot $\VDomino{u_{i_1}}{v_{i_1}} \cdots \VDomino{u_{i_k}}{v_{i_k}} \in D^+$ tel que $u_{i_1} \cdots u_{i_k} = v_{i_1} \cdots v_{i_k}$ ?
+  }
+
+  \begin{question}
+  \item\label{ex2.Q1} Les instances $D_1$ et $D_2$ suivantes de PCP sont-elles positives ? Justifiez en donnant une solution ou une preuve qu'il n'en existe pas pour chaque instance.
+    $$D_1 \eqdef \left\{
+    \VDomino[8mm]{aba}{a},
+    \VDomino[8mm]{a}{ababa},
+    \VDomino[8mm]{ab}{b},
+    \VDomino[8mm]{b}{ab}
+    \right\}
+    \quad\quad\quad
+    D_2 \eqdef \left\{
+    \VDomino[8mm]{$aba$}{$ba$},
+    \VDomino[8mm]{$aa$}{$a$},
+    \VDomino[8mm]{$b$}{$bb$}
+    \right\}$$
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item $D_1$ est positive : 
+      $ \VDomino[8mm]{a}{ababa}\cdot 
+      \VDomino[8mm]{b}{ab}\cdot
+      \VDomino[8mm]{aba}{a}\cdot
+      \VDomino[8mm]{aba}{a}\cdot
+      \VDomino[8mm]{ab}{b}$ est une solution. 
+    \item $D_2$ est négative : une solution ne peut pas commencer par \VDomino[8mm]{aba}{ba} car les deux mots ne commencent pas par la même lettre ;
+      si on commence par \VDomino[8mm]{aa}{a}, on est forcé de répéter \VDomino[8mm]{aa}{a} sans jamais atteindre l'égalité ;
+      idem pour \VDomino[8mm]{b}{bb}. 
+    \end{itemize}
+  \end{correction}
+  
+  On définit maintenant le problème de l'intersection des langages algébriques :
+  \Probleme{Intersect-Alg}{
+    Une paire $I = \langle G, H \rangle$ de grammaires algébriques.
+  }{
+    Existe-t-il un mot $w \in \mathcal{L}(G) \cap \mathcal{L}(H)$ ?
+  }
+
+  \begin{question}
+  \item Les instances $I_1$ et $I_2$ suivantes de \textsc{Intersect-Alg} sont-elles positives ?
+    Justifiez pour chaque instance en donnant une génération pour le même mot par chaque grammaire, ou une preuve que l'intersection des langages est vide.
+    $$\begin{array}{rcl}
+      I_1 &=& \langle G_1, H_1 \rangle, \text{ avec :}\\
+      
+      G_1 &=&  \left\langle \Sigma, \{S\}, S, \left\{S \rightarrow aaSbb \mid \varepsilon\right\} \right\rangle \vspace{1mm}\\
+
+      H_1 &=&  \left\langle \Sigma, \{T\}, T, \left\{T \rightarrow aaTbb \mid ab\right\} \right\rangle\\
+    \end{array}
+    \quad\quad
+    \begin{array}{rcl}
+      I_2 &=& \langle G_2, H_2 \rangle, \text{ avec :}\\
+      
+      G_2 &=&  \left\langle \Sigma, \{S\}, S, \left\{S \rightarrow aSb \mid ab\right\} \right\rangle \vspace{1mm}\\
+
+      H_2 &=&  \left\langle \Sigma, \{T\}, T, \left\{T \rightarrow aT \mid bT \mid \varepsilon\right\} \right\rangle\\
+    \end{array}$$
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item $I_1$ est négative : $\mathcal{L}(G_1) = \{a^n b^n \mid n \text{ pair} \}$ et $\mathcal{L}(H_1) = \{a^n b^n \mid n \text{ impair} \}$, donc $\mathcal{L}(G_1) \cap \mathcal{L}(H_1) = \emptyset$
+    \item $I_2$ est positive : on a $S \vdash ab$ et $T \vdash aT \vdash abT \vdash ab$, donc $ab \in \mathcal{L}(G_2) \cap \mathcal{L}(H_2)$.
+    \end{itemize}
+  \end{correction}
+
+  On s'intéresse à la transformation $f$ qui à toute instance du PCP $D = \left\{ \VDomino{u_1}{v_1}, ..., \VDomino{u_n}{v_n} \right\}$
+  associe l'instance $f\left(D\right) = \left\langle G, H \right\rangle$ du problème \textsc{Intersect-Alg} définie par :
+  $$
+  \begin{array}{rcl}
+    G &=&  \left\langle \Sigma \cup D, \{S\}, S, \left\{\begin{array}{rrlllll}
+    S &\rightarrow& u_1 \cdot S \cdot \VDomino[5mm]{u_1}{v_1} &\mid& ... &\mid& u_n \cdot S \cdot \VDomino[5mm]{u_n}{v_n}\\
+    &\mid& u_1 \cdot \VDomino[5mm]{u_1}{v_1} &\mid& ... &\mid& u_n \cdot \VDomino[5mm]{u_n}{v_n}
+    \end{array}\right\} \right\rangle \vspace{1mm}\\
+
+    H &=&  \left\langle \Sigma \cup D, \{T\}, T, \left\{\begin{array}{rrlllll}
+    T &\rightarrow& v_1 \cdot T \cdot \VDomino[5mm]{u_1}{v_1} &\mid& ... &\mid& v_n \cdot T \cdot \VDomino[5mm]{u_n}{v_n}\\
+    &\mid& v_1 \cdot \VDomino[5mm]{u_1}{v_1} &\mid& ... &\mid& v_n \cdot \VDomino[5mm]{u_n}{v_n}
+    \end{array}\right\} \right\rangle \vspace{1mm}\\
+  \end{array}$$
+
+  \emph{Attention : } Les dominos de $D$ sont considérés comme des symboles terminaux des grammaires $G$ et $H$ : chacun est considéré comme un symbole indivisible.
+
+  
+  \begin{question}
+  \item Soit $D_3 = \left\{
+    \VDomino[8mm]{ab}{a},
+    \VDomino[8mm]{a}{b},
+    \VDomino[8mm]{b}{ab}
+    \right\}$. On note $\langle G_3, H_3 \rangle = f(D_3)$.
+    
+    Donnez la définition complète des grammaires $G_3$ et $H_3$.
+
+  \end{question}
+  \begin{correction}
+    $f\left(D_3\right) = \langle G_3, H_3 \rangle$, avec :
+    $$
+    \begin{array}{rcl}
+      G_3 &=&  \left\langle \Sigma \cup D_3, \{S\}, S, \left\{\begin{array}{rrlllll}
+      S &\rightarrow&
+      ab \cdot S \cdot \VDomino[8mm]{ab}{a} &\mid&
+      a \cdot S \cdot \VDomino[8mm]{a}{b} &\mid&
+      b \cdot S \cdot \VDomino[8mm]{b}{ab}\\&\mid&
+      ab \cdot \VDomino[8mm]{ab}{a}&\mid&
+      a \cdot \VDomino[8mm]{a}{b}  &\mid&
+      b \cdot \VDomino[8mm]{b}{ab}
+      \end{array}\right\} \right\rangle \vspace{1mm}\\
+      
+      H_3 &=&  \left\langle \Sigma \cup D_3, \{T\}, T, \left\{\begin{array}{rrlllll}
+      T &\rightarrow&
+      a \cdot T \cdot \VDomino[8mm]{ab}{a} &\mid&
+      b \cdot T \cdot \VDomino[8mm]{a}{b} &\mid&
+      ab \cdot T \cdot \VDomino[8mm]{b}{ab}\\&\mid&
+      a \cdot \VDomino[8mm]{ab}{a}&\mid&
+      b \cdot \VDomino[8mm]{a}{b}  &\mid&
+      ab \cdot \VDomino[8mm]{b}{ab}
+      \end{array}\right\} \right\rangle \vspace{1mm}\\
+    \end{array}$$
+  \end{correction}
+
+  \begin{question}
+  \item\label{exo:reductions/computability/intersection:d}
+    Expliquez comment on peut en déduire une séquence de dominos qui constitue une solution à l'instance $D_3$, à partir de n'importe quel mot de $\mathcal{L}(G_3) \cap \mathcal{L}(H_3)$. 
+
+    Illustrez la méthode sur le mot $w = abab \cdot 
+    \VDomino[8mm]{b}{ab} \cdot
+    \VDomino[8mm]{a}{b} \cdot
+    \VDomino[8mm]{ab}{a}$
+    que l'on affirme appartenir à $\mathcal{L}(G_3)$ et à $\mathcal{L}(H_3)$.
+  \end{question}
+  \begin{correction}
+    Soit $w \in \mathcal{L}(G_3) \cap \mathcal{L}(H_3)$. D'après les grammaires $G_3$ et $H_3$, $w$ est de la forme
+    
+    $$w
+    = u_{i_1} \cdots u_{i_k} \cdot \VDomino[8mm]{u_{i_k}}{v_{i_k}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}
+    = v_{j_1} \cdots v_{j_l} \cdot \VDomino[8mm]{u_{j_l}}{v_{j_l}} \cdots \VDomino[8mm]{u_{j_1}}{v_{j_1}}$$
+
+    Par unicité de la décomposition du mot $w$ en symboles de $\Sigma \cup D$,
+    on a $k=l$ et pour tout $i \in \{1, ..., k\}$, $i_{i} = j_{i}$.
+    De plus, $u_{i_1} \cdots u_{i_k} = v_{j_1} \cdots v_{j_l}$.
+    On en déduit la solution de $D$ :
+    $$\VDomino[8mm]{u_{i_1}}{v_{i_1}} \cdots \VDomino[8mm]{u_{i_k}}{v_{i_k}}.$$
+    
+    À partir du mot $w = abab \cdot \VDomino[8mm]{b}{ab} \cdot \VDomino[8mm]{a}{b} \cdot \VDomino[8mm]{ab}{a}$ donné,
+    on déduit la solution :
+    $$
+     \VDomino[8mm]{ab}{a} \cdot \VDomino[8mm]{a}{b} \cdot \VDomino[8mm]{b}{ab}.
+    $$
+  \end{correction}
+
+  \begin{question}
+  \item\label{exo:reductions/computability/intersection:e}
+    Soit $D$ une instance du PCP et $\langle G, H \rangle = f(D)$.
+    On suppose qu'il existe une solution $\VDomino{u_{i_1}}{v_{i_1}} \cdots \VDomino{u_{i_k}}{v_{i_k}}$ à $D$.
+
+    Expliquez comment cette solution permet de construire un mot $w \in \mathcal{L}(G) \cap \mathcal{L}(H)$. 
+    Justifiez en décrivant une génération de $w$ par chacune des deux grammaires.
+
+  \end{question}
+  \begin{correction}
+    On a, pour $G$ :
+    $$S \vdash u_{i_1} \cdot S \cdot \VDomino[8mm]{u_{i_1}}{v_{i_1}} \vdash ... \vdash
+    u_{i_1} \cdots u_{i_{k-1}} \cdot S \cdot \VDomino[8mm]{u_{i_{k-1}}}{v_{i_{k-1}}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}
+    \vdash u_{i_1} \cdots u_{i_k} \cdot \VDomino[8mm]{u_{i_k}}{v_{i_k}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}$$
+    et pour $H$ :
+    $$T \vdash v_{i_1} \cdot T \cdot \VDomino[8mm]{u_{i_1}}{v_{i_1}} \vdash ... \vdash
+    v_{i_1} \cdots v_{i_{k-1}} \cdot T \cdot \VDomino[8mm]{u_{i_{k-1}}}{v_{i_{k-1}}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}
+    \vdash v_{i_1} \cdots v_{i_k} \cdot \VDomino[8mm]{u_{i_k}}{v_{i_k}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}.$$
+    
+    Comme $\VDomino[8mm]{u_{i_1}}{v_{i_1}} \cdots \VDomino[8mm]{u_{i_k}}{v_{i_k}}$ est solution, 
+    $u_{i_1} \cdots u_{i_{k}} = v_{i_1} \cdots v_{i_{k}}$, donc
+    $$u_{i_1} \cdots u_{i_k} \cdot \VDomino[8mm]{u_{i_k}}{v_{i_k}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}}
+    = v_{i_1} \cdots v_{i_k} \cdot \VDomino[8mm]{u_{i_k}}{v_{i_k}} \cdots \VDomino[8mm]{u_{i_1}}{v_{i_1}} \in \mathcal{L}(G) \cap \mathcal{L}(H).$$
+  \end{correction}
+
+  \begin{question}
+  \item Concluez que le problème \textsc{Intersect-Alg} est indécidable. Précisez comment les questions précédentes permettent de déduire ce résultat.
+  \end{question}
+  \begin{correction}
+    D'après les questions \ref{exo:reductions/computability/intersection:d} et \ref{exo:reductions/computability/intersection:e},
+    $D$ est une instance positive de PCP si, et seulement si $f(D)$ est une instance positive de \textsc{Intersect-Alg}.
+    De plus, la fonction $f$ est calculable. On en déduit que $f$ est une réduction par mappage de PCP vers \textsc{Intersect-Alg}, c'est-à-dire
+    $\textsc{PCP} \le_m \textsc{Intersect-Alg}$. Cela prouve que \textsc{Intersect-Alg} hérite de l'indécidabilité du PCP.
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

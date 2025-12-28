@@ -1,0 +1,142 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Finite state automata
+% Exercise: Definitions and determinisation
+
+\begingroup
+
+\begin{exercice}[Automates finis non déterministes]\label{exo:languages/automata/determinisation}
+
+  On considère l'automate fini non déterministe $A$ suivant sur l'alphabet $\Sigma = \{a,b\}$ :
+
+  \begin{center}
+    \begin{tikzpicture}[automaton, size=20mm]
+      \state[initial]   (0) at (0,1) {$0$};
+      \state            (1) at (1,1) {$1$};
+      \state            (2) at (1,0) {$2$};
+      \state[accepting] (3) at (2,1) {$3$};
+
+      \path (0) edge             node {$a$}   (1); 
+      \path (0) edge[loop above] node {$a,b$} (0); 
+      \path (1) edge             node {$b$}   (3); 
+      \path (1) edge             node {$a$}   (2); 
+      \path (2) edge[loop below] node {$a,b$} (2); 
+      \path (2) edge             node {$b$}   (3);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{question}
+  \item Donnez le graphe des configurations de $A$ accessibles depuis la configuration initiale sur les mots $ab$, $aab$ et $aba$.
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item Configurations accessibles à partir de $ab$ :
+      \begin{tikzpicture}[y=5mm, x=20mm, baseline=(c1.base)]
+        \node (c1) at (0,1) {$\langle ab,          0\rangle$};
+        \node (c2) at (1,2) {$\langle b,           0\rangle$};
+        \node (c3) at (1,0) {$\langle b,           1\rangle$};
+        \node (c4) at (2,2) {$\langle \varepsilon, 0\rangle$};
+        \node (c5) at (2,0) {$\langle \varepsilon, 3\rangle$};
+        
+        \path (c1) edge[leadsto] (c2);
+        \path (c1) edge[leadsto] (c3);
+        \path (c2) edge[leadsto] (c4);
+        \path (c3) edge[leadsto] (c5);
+      \end{tikzpicture}
+
+    \item Configurations accessibles à partir de $aab$ :
+      \begin{tikzpicture}[y=5mm, x=20mm, baseline=(c1.base)]
+        \node (c1) at (0,1) {$\langle aab,         0\rangle$};
+        \node (c2) at (1,2) {$\langle ab,          0\rangle$};
+        \node (c3) at (1,0) {$\langle ab,          1\rangle$};
+        \node (c4) at (2,2) {$\langle b,           0\rangle$};
+        \node (c5) at (2,1) {$\langle b,           1\rangle$};
+        \node (c6) at (2,0) {$\langle b,           2\rangle$};
+        \node (c7) at (3,2) {$\langle \varepsilon, 0\rangle$};
+        \node (c8) at (3,1) {$\langle \varepsilon, 3\rangle$};
+        \node (c9) at (3,0) {$\langle \varepsilon, 2\rangle$};
+        
+        \path (c1) edge[leadsto] (c2);
+        \path (c1) edge[leadsto] (c3);
+        \path (c2) edge[leadsto] (c4);
+        \path (c2) edge[leadsto] (c5);
+        \path (c3) edge[leadsto] (c6);
+        \path (c4) edge[leadsto] (c7);
+
+        \path (c5) edge[leadsto] (c8);
+        \path (c6) edge[leadsto] (c8);
+        \path (c6) edge[leadsto] (c9);
+      \end{tikzpicture}
+
+    \item Configurations accessibles à partir de $aba$ :
+      \begin{tikzpicture}[y=5mm, x=20mm, baseline=(c1.base)]
+        \node (c1) at (0,1) {$\langle aba,         0\rangle$};
+        \node (c2) at (1,2) {$\langle ba,          0\rangle$};
+        \node (c3) at (1,0) {$\langle ba,          1\rangle$};
+        \node (c4) at (2,2) {$\langle a,           0\rangle$};
+        \node (c5) at (2,0) {$\langle a,           3\rangle$};
+        \node (c6) at (3,2) {$\langle \varepsilon, 0\rangle$};
+        \node (c7) at (3,0) {$\langle \varepsilon, 1\rangle$};
+        
+        \path (c1) edge[leadsto] (c2);
+        \path (c1) edge[leadsto] (c3);
+        \path (c2) edge[leadsto] (c4);
+        \path (c3) edge[leadsto] (c5);
+        \path (c4) edge[leadsto] (c6);
+        \path (c4) edge[leadsto] (c7);
+      \end{tikzpicture}
+      
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Les mots précédents sont-ils reconnus par $A$ ?
+    Justifier votre réponse.
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item Le mot $ab$ est accepté car $\langle \varepsilon, 3\rangle$ est accessible.
+    \item Le mot $aab$ est accepté car $\langle \varepsilon, 3\rangle$ est accessible.
+    \item Le mot $aba$ est rejeté car $\langle \varepsilon, 3\rangle$ n'est pas accessible.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Décrire le langage reconnu par l'automate $A$.
+  \end{question}
+  \begin{correction}
+    Le langage reconnu est $(a\mid b)^\star a (a(a\mid b)^\star \mid \varepsilon)  b$
+  \end{correction}
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item Appliquer la construction des sous-ensembles (Rabin--Scott) pour obtenir
+    un automate fini déterministe équivalent à $A$.
+  \end{question}
+  \begin{correction}
+    On obtient l'automate suivant :
+    \begin{tikzpicture}[automaton, size=20mm, baseline=(0.base)]
+      \state[initial]   (0) at (0,1) {$0$};
+      \state            (1) at (1,1) {$0, 1$};
+      \state            (2) at (2,1) {$0, 1, 2$};
+      \state[accepting] (3) at (1,0) {$0, 3$};
+      \state[accepting] (4) at (2,0) {$0, 2, 3$};
+
+      \path (0) edge             node {$a$}   (1); 
+      \path (0) edge[loop above] node {$b$}   (0); 
+      \path (1) edge[bend left]  node {$b$}   (3); 
+      \path (1) edge             node {$a$}   (2); 
+      \path (2) edge[loop right] node {$a$}   (2); 
+      \path (2) edge[bend left]  node {$b$}   (4);
+      \path (3) edge[bend left]  node {$a$}   (1);
+      \path (3) edge             node {$b$}   (0);
+      \path (4) edge[bend left]  node {$a$}   (2);
+      \path (4) edge[loop right] node {$b$}   (4);
+    \end{tikzpicture}
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

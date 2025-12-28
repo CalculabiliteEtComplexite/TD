@@ -1,0 +1,128 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Chomsky hierarchy
+% Exercise: Representation of languages by formal grammars
+
+\begingroup
+
+\begin{exercice}[Langages miroir et copie]\label{exo:languages/chomsky/copy}
+
+  On considère les deux langages suivants sur l'alphabet $\{a,b,c\}$ :
+  $$
+  L_{\mathit{mir}} = \{ u c u^{\textsc{r}} \mid u \in \{a,b\}^\star \}
+  \qquad\text{et}\qquad
+  L_{\mathit{cop}} = \{ u c u \mid u \in \{a,b\}^\star \}.
+  $$
+  où $u^\textsc{r}$ représente le mot \emph{miroir} de $u$. 
+
+  \begin{question}
+  \item Donner une \emph{grammaire algébrique} pour le langage $L_{\mathit{mir}}$.
+  \end{question}
+  \begin{correction}
+    $G_{\mathit{mir}} = \left\langle \{a,b,c\}, \{S\}, S, \{S \to aSa \mid bSb \mid c\} \right\rangle$
+  \end{correction}
+  
+  \begin{question}
+  \item Montrer que $L_{\mathit{mir}}$ n'est pas \emph{rationnel} 
+    en utilisant le lemme de l'étoile. En déduire le type de $L_{\mathit{mir}}$.
+  \end{question}
+  \begin{correction}
+    Supposons $L_{\mathit{mir}}$ rationnel.
+    Soit $N$ la constante donnée par le lemme de l'étoile, et posons
+    $u = a^N c a^N$. On a bien $u\in L_{\mathit{mir}}$ et $|u|>N$.
+    Le lemme fournit une factorisation $u = xyz$ telle que
+    $|xy| \le N$, $|y| > 0$ et $\forall i \ge 0,\ x y^i z \in L_{\mathit{mir}}$.
+
+    Comme $|xy|\le N$, le facteur $y$ est constitué uniquement de $a$ dans le préfixe gauche.
+    Ainsi $y = a^m$ avec $m \ge 1$, entièrement situé avant le $c$.
+
+    Pour $i=0$, le mot $u' = xz$ contient moins de $a$ à gauche du $c$
+    que $u$, alors que le suffixe $a^N$ ne change pas.
+    Donc $u' \notin \{a^n c a^n\}$, contradiction.
+
+    Ainsi $L_{\mathit{mir}}$ n'est pas rationnel.
+    Comme il existe une grammaire de type 2 pour $L_{\mathit{mir}}$ et que le langage n’est pas de type 3,
+    il est de type 2.
+  \end{correction}
+  
+  \begin{question}
+  \item Montrer que $L_{\mathit{cop}}$ n'est pas \emph{algébrique}
+    en utilisant le lemme de pompage pour les langages algébriques.
+  \end{question}
+  \begin{correction}
+    Supposons $L_{\mathit{cop}}$ algébrique.
+    Soit $N$ la constante du lemme de pompage, et posons
+    $u = a^N b^N c a^N b^N \in L_{\mathit{cop}}$ avec $|u|>N$.
+    Le lemme donne une factorisation $u = v w x y z$ telle que
+    $|wxy| \le N$, $|wy| > 0$ et $\forall i\ge 0,\ v w^i x y^i z \in L_{\mathit{cop}}$.
+    On distingue les cas.
+
+    \begin{itemize}
+    \item $wy$ contient le $c$ : alors $vw^0 x y^0 z$ ne contient pas $c$. Contradiction.
+    \item $w$ et $y$ sont tous deux à gauche (resp.\ à droite) du $c$ :
+      alors $vw^0 x y^0 z$ ne comporte pas le même nombre de lettres de chaque côté. Contradiction.
+    \item $w$ est à gauche du $c$ et $y$ à droite : comme $|wxy|\le N$,
+      $w$ ne contient que des $b$ et $y$ que des $a$. Là encore, $vw^0 x y^0 z \notin L_{\mathit{cop}}$.
+    \end{itemize}
+
+    Dans tous les cas, contradiction. Donc $L_{\mathit{cop}}$ n’est pas algébrique.
+  \end{correction}
+
+  \ifcorrection{\newpage}
+  \begin{question}
+  \item Proposer une \emph{grammaire générale} pour $L_{\mathit{cop}}$.
+
+    \emph{Indication :} on pourra commencer par générer des mots de la forme
+    $(aA \mid bB)^\star c$, puis ajouter des règles qui réordonnent les
+    minuscules et les majuscules afin d'obtenir un mot de la forme $u c u$.
+  \end{question}
+  \begin{correction}
+    $\left\langle \{a, b, c\}, \{S, A, B\}, S,
+    \left\{\begin{array}{rcl}
+    S   &\rightarrow& aA S \mid bB S \mid c\\
+    Aa &\rightarrow& aA\\
+    Ab &\rightarrow& bA\\
+    Ac &\rightarrow& ca\\
+    Ba &\rightarrow& aB\\
+    Bb &\rightarrow& bB\\
+    Bc &\rightarrow& cb\\
+    \end{array}\right\}  \right\rangle$
+  \end{correction}
+
+  \begin{question}
+  \item Adapter la question précédente pour obtenir une \emph{grammaire contextuelle}
+    pour $L_{\mathit{cop}}$.
+
+    \emph{Indication :} si l'on dispose de deux non-terminaux $X$ et $Y$ consécutifs,
+    on peut les inverser à l'aide d'un nouveau symbole $Z$ et des règles contextuelles :
+    $$
+    XY \rightarrow XZ \rightarrow YZ \rightarrow YX
+    $$
+  \end{question}
+  \begin{correction}
+    On introduit des non-terminaux $\alpha$ et $\beta$ pour les $a$ et $b$ à gauche de $c$,
+    un non-terminal $C$ pour représenter le $c$,
+    et des non-terminaux $U$, $V$, $W$, $X$, $Y$ et $Z$ pour effectuer les inversions.
+    Il n’y a pas de risque que $C$, $\alpha$ et $\beta$ se
+    transforment trop tôt en terminaux, car dans ce cas il resterait des non-terminaux
+    dans la forme irréductible, donc aucun mot accepté.
+
+    $\left\langle \{a, b, c\}, \{S, A, B, C, \alpha, \beta, U, V, W, X, Y, Z\}, S,
+    \left\{\begin{array}{rcl}
+    S       &\rightarrow& \alpha A S \mid \beta B S \mid c\\
+    A\alpha &\rightarrow& AU \rightarrow \alpha U \rightarrow \alpha A\\
+    A\beta  &\rightarrow& AV \rightarrow \beta V \rightarrow \beta A\\
+    AC      &\rightarrow& AW \rightarrow CW \rightarrow Ca\\
+    B\alpha &\rightarrow& AX \rightarrow \alpha X \rightarrow \alpha B\\
+    B\beta  &\rightarrow& AY \rightarrow \beta Y \rightarrow \beta B\\
+    BC      &\rightarrow& AZ \rightarrow CZ \rightarrow Cb\\
+    C      &\rightarrow& c\\
+    \alpha &\rightarrow& a\\
+    \beta  &\rightarrow& b\\
+    \end{array}\right\}  \right\rangle$
+  \end{correction}
+\end{exercice}
+
+\endgroup
+\endinput

@@ -1,0 +1,141 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\newcommand\PROBLEM{\textsc{problème}}
+
+\begin{exercice}[Appartenance à P/NP]
+
+  Dans toutes les questions qui suivent, on se donne un problème de décision \PROBLEM, dont la taille des données
+  est $n$. Pour chaque question, il s'agit de répondre \og Oui \fg, \og Non \fg ou \og On ne peut pas conclure \fg.
+
+  \begin{question}
+  \item Supposons qu'il existe un algorithme en $\mathcal{O}\left(n^4 \cdot \log(n) \right)$ pour résoudre \PROBLEM.
+    \begin{itemize}
+    \item \PROBLEM{} est-il dans P ?
+    \item \PROBLEM{} est-il dans NP ?
+    \end{itemize}
+  \end{question}
+  \begin{correction}
+    $n^4 \cdot \log(n) = \mathcal{O}\left(n^5\right)$, donc l'algorithme est polynomial. 
+    Cela place par définition \PROBLEM{} dans P.
+    Comme $P \subseteq NP$ , \PROBLEM{} est également dans NP.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons qu'il existe un algorithme en $\mathcal{O}\left(n \cdot 2^n\right)$ pour résoudre \PROBLEM.
+    \begin{itemize}
+    \item \PROBLEM{} est-il dans P ?
+    \item \PROBLEM{} est-il dans NP ?
+    \end{itemize}
+  \end{question}
+  \begin{correction}
+    Il existe un algorithme exponentiel pour résoudre \PROBLEM, mais cela ne nous indique rien sur
+    l'existence (ou non) d'un algorithme polynomial pour \PROBLEM. En résumé, on dispose de trop peu
+    d'informations pour conclure, et la réponse aux deux questions est : ``On ne peut pas conclure''.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons qu'il existe un algorithme en $\mathcal{O}\left(2^{\log_2(n)^2} \right)$ pour résoudre \PROBLEM.
+    \begin{itemize}
+    \item \PROBLEM{} est-il dans P ?
+    \item \PROBLEM{} est-il dans NP ?
+    \end{itemize}
+  \end{question}
+  \begin{correction}
+    $2^{\log_2(n)^2} = n^{\log_2(n)}$, donc l'algorithme est quasi-polynomial mais pas polynomial. 
+    On est dans la même situation que dans la question précédente : on ne peut pas conclure.
+  \end{correction}
+  
+  \begin{question}
+  \item Supposons qu'on démontre que \PROBLEM{} est dans NP. \PROBLEM{} est-il dans P ?
+  \end{question}
+  \begin{correction}
+    Il s'agit juste de considérations ensemblistes, en se souvenant que $P \subseteq NP$.
+    Ici, on ne peut pas conclure.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons qu'on démontre que \PROBLEM{} est dans P. \PROBLEM{} est-il dans NP ?
+  \end{question}
+  \begin{correction}
+    Oui.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons qu'on démontre que \PROBLEM{} n'est pas dans P. \PROBLEM{} est-il dans NP ?
+  \end{question}
+  \begin{correction}
+    On ne peut pas conclure.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons qu'on démontre que \PROBLEM{} n'est pas dans NP. \PROBLEM{} est-il dans P ?
+  \end{question}
+  \begin{correction}
+    Non.
+  \end{correction}
+
+  \begin{question}
+  \item Supposons que \PROBLEM{} soit NP-complet.
+    Peut-on conclure que \PROBLEM{} n'admet pas d'algorithme en temps polynomial ?
+  \end{question}
+  \begin{correction}
+    On ne peut pas conclure : si $\text{P} = \text{NP}$, la réponse est non, sinon, la réponse est oui. 
+  \end{correction}
+
+  \begin{question}
+  \item Supposons que \PROBLEM{} soit dans NP et que son complémentaire soit également dans NP.
+    \PROBLEM{} est-il dans P ?
+  \end{question}
+  \begin{correction}
+    On ne peut pas conclure.
+  \end{correction}
+  
+  On considère le raisonnement suivant, censé démontrer que $\text{P} \neq \text{NP}$.
+
+  \Minibox{
+    On sait qu'il existe des problèmes NP-complets. Soit \PROBLEM{} un problème NP-complet.  
+    Par définition, \PROBLEM appartient à NP et est NP-dur :
+    tout problème de NP se réduit à \PROBLEM{} en temps polynomial.
+    Ainsi, \PROBLEM{} est au moins aussi difficile que n'importe quel problème de P.
+    
+    Par ailleurs, on sait que pour tout $k \ge 1$, il existe au moins un problème $L_k$ de P qui ne peut
+    pas être décidé en moins de $\Omega(n^k)$ étapes
+    (en particulier, certains problèmes de P sont super-linéaires, super-quadratiques, etc.). 
+    
+    Il s'ensuit que, quel que soit $k$, la complexité de \PROBLEM{} est supérieure ou égale à $\Omega(n^k)$.
+    Donc \PROBLEM{} n'admet pas d'algorithme polynomial.
+    Puisque \PROBLEM{} est dans NP mais pas dans P, on en conclut que $\text{P} \neq \text{NP}$.
+  }
+
+  \begin{question}
+  \item Le raisonnement ci-dessus est incorrect.
+    Indiquez précisément à quel endroit se situe l'erreur,
+    et expliquez en une ou deux phrases pourquoi il est faux.
+  \end{question}
+  \begin{correction}
+    L'erreur vient de l'identification suivante : 
+    \og{}$L_k$ se réduit à \PROBLEM{} en temps polynomial\fg{}
+    ne signifie pas
+    \og{}\PROBLEM{} a une complexité au moins égale à celle de $L_k$\fg.
+
+    En effet, si l'on veut décider $L_k$ via la complétude de \PROBLEM{}, 
+    la complexité est celle de \PROBLEM{} \emph{plus} celle de la réduction.
+    Or, dans toutes les réductions générales connues de machines de Turing de NP 
+    vers un problème NP-complet, l'exécution entière de la machine est encodée dans l'instance réduite.
+    C'est en particulier le cas dans la réduction de Cook–Levin vers \textsc{SAT},
+    et donc de toutes les réductions à partir de \textsc{SAT}.
+
+    Ainsi, la complexité $\Omega(n^k)$ de $L_k$ est déjà payée par la réduction elle-même :
+    on ne peut donc rien en déduire sur la complexité intrinsèque de \PROBLEM.
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

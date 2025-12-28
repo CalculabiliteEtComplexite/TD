@@ -1,0 +1,363 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\begin{exercice}[Arrêt universel et existentiel pour des programmes Java]
+
+  On considère des implémentations en Java de l'interface \texttt{NToN} suivante :
+  \begin{lstlisting}
+    interface NToN {
+      BigInteger decide(BigInteger n);
+    }
+  \end{lstlisting}
+  On interprète une implémentation $P$ de \texttt{NToN} comme un programme qui, sur l'entrée $n\in\mathbb{N}$,
+  \emph{peut} soit terminer et renvoyer un \texttt{BigInteger}, soit ne jamais terminer (boucler).
+  Dans toute la suite de l'exercice, on appellera \og{} programme \fg{} une timplémentation de \texttt{NToN}.
+
+  On rappelle le problème de l'arrêt, et on introduit ses variantes universelle et existentielle.
+
+  \Probleme{halt}{
+    Un programme $P$, et un entier $n\in\mathbb{N}$.
+  }{
+    Est-ce que l'appel $P.\texttt{decide}(n)$ termine ?
+  }
+
+  \Probleme{universal halt}{
+    Un programme $P$.
+  }{
+    Est-ce que, pour tout entier $n\in\mathbb{N}$, l'appel $P.\texttt{decide}(n)$ termine ?
+  }
+
+  \Probleme{Existential Halt}{
+    Un programme $P$.
+  }{
+    Existe-t-il un entier $n\in\mathbb{N}$ tel que l'appel $P.\texttt{decide}(n)$ termine ?
+  }
+
+  \begin{question}
+  \item On veut démontrer que le problème \textsc{universal halt} est indécidable par réduction du problème \textsc{halt}.
+    Quelle doit être la signature (types d'entrée et de retour) de la réduction par mappage ? Donner une interface Java
+    implémentée par la réduction par mappage. 
+  \end{question}
+  \begin{correction}
+    Une réduction de \textsc{halt} vers \textsc{universal halt} doit implémenter l'interface suivante :
+    \begin{lstlisting}
+      interface HtoUH {
+        NToN reduce(NToN P, BigInteger n);
+      }
+    \end{lstlisting}
+
+    \begin{description}
+    \item[Entrée :] une instance de \textsc{halt}, c'est à-dire un couple $\langle P, n \rangle$.
+    \item[Sortie :] une instance $Q = \texttt{reduce}(P, n)$ de \textsc{universal halt}, telle que $P$ termine $n$ si,
+      et seulement si, $Q$ termine sur $x$ pour tout $x$. 
+    \end{description}
+  \end{correction}
+
+  \begin{question}
+  \item Démontrer que le problème \textsc{universal halt} est indécidable par réduction du problème \textsc{halt}.
+  \end{question}
+  \begin{correction}
+    On pose la réduction suivante :
+    \begin{lstlisting}
+      HtoUH reduction = (P, n) -> {
+        HtoUH Q = x -> {
+          P.P.\texttt{decide}(n);
+        };
+        return Q;
+      }
+    \end{lstlisting}
+    \texttt{reduction} est clairement calculable puisqu'il s'agit d'un programme Java qui ne fait aucun calcul (seulement une déclaration).
+    De plus, pour tout $x$, on a bien que $\texttt{reduce}(P, n)$ termine sur $x$ si, et seulement si, $P$ termine $n$.
+  \end{correction}
+
+  \begin{question}
+  \item Démontrer que le problème \textsc{existential halt} est indécidable par réduction du problème \textsc{halt}.
+  \end{question}
+  \begin{correction}
+    La même réduction qu'à la question précédente fonctionne.
+  \end{correction}
+
+  \begin{question}
+  \item Démontrer que le problème \textsc{existential halt} est semi-décidable.
+  \end{question}
+  \begin{correction}
+    On décrit un semi-décideur pour \textsc{Existential Halt} :
+    
+    \begin{lstlisting}
+      boolean semiDecide(NToN P) {
+        for(int i = 0; i < )
+      }
+    \end{lstlisting}
+    
+
+    
+
+    Sur entrée $P$, $S$ procède par entrelacement :
+    pour $t=0,1,2,\dots$, il lance (ou prolonge) les simulations de
+    \[
+    P.\texttt{decide}(0),\ P.\texttt{decide}(1),\ \dots,\ P.\texttt{decide}(t)
+    \]
+    pendant un nombre borné de pas, et accepte dès qu'il observe qu'une de ces simulations termine.
+
+    \begin{itemize}
+    \item S'il existe $m$ tel que $P.\texttt{decide}(m)$ termine, alors cette terminaison sera observée à un tour fini, et $S$ accepte.
+    \item Si pour tout $m$, $P.\texttt{decide}(m)$ ne termine pas, alors aucune simulation ne termine et $S$ n'accepte jamais.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Décrire le complémentaire\footnote{Au sens ensembliste des langages.}
+    du problème \textsc{universal halt}.
+  \end{question}
+  \begin{correction}
+    \begin{description}
+    \item[Entrée :] une instance de \textsc{halt}, c'est à-dire un couple $\langle M, u \rangle$.
+    \item[Sortie :] une instance $M'$ de \textsc{universal halt}, telle que $M$ termine $u$ si,
+      et seulement si, $M'$ termine sur $v$ pour tout $v$. 
+    \end{description}
+  \end{correction}
+
+  \begin{question}
+  \item En déduire que le problème \textsc{universal halt} n'est pas semi-décidable.
+  \end{question}
+
+  \ifdefined\CORRECTION
+
+  \begin{correction}
+
+    \paragraph{Convention.}
+    On raisonne sur des programmes Java comme sur des objets mathématiques : une \emph{réduction} construit,
+    à partir d'une instance, le code d'un nouveau programme (une nouvelle implémentation de \texttt{NToN}).
+    Il est entendu qu'on peut ``embarquer'' dans ce code une description de $P$ et de $n$,
+    et simuler l'exécution de $P.\texttt{decide}(n)$ (c'est exactement ce que fait, en pratique, un interprète, une VM,
+    ou un simulateur universel).
+
+    \begin{enumerate}
+
+    \item \textbf{\textsc{Universal Halt} est indécidable.}
+      On réduit \textsc{Halt} à \textsc{Universal Halt}.
+
+      Soit une instance $(P,n)$ de \textsc{Halt}. On construit un programme $Q$ tel que :
+      \[
+      P.\texttt{decide}(n)\ \text{termine}
+      \iff
+      (\forall m\in\mathbb{N},\ Q.\texttt{decide}(m)\ \text{termine}).
+      \]
+      Construction de $Q$ : sur entrée $m$, $Q$ simule $P.\texttt{decide}(n)$ ; si la simulation termine,
+      $Q$ termine (par exemple en renvoyant $0$) ; sinon, $Q$ boucle.
+
+      \begin{itemize}
+      \item Si $P.\texttt{decide}(n)$ termine, alors pour tout $m$, la simulation finit, donc $Q.\texttt{decide}(m)$ termine.
+      \item Si $P.\texttt{decide}(n)$ ne termine pas, alors pour tout $m$, la simulation ne finit jamais, donc $Q.\texttt{decide}(m)$ ne termine pas.
+      \end{itemize}
+      Donc $(P,n)\in\textsc{Halt}_\mathsf{NToN} \iff Q\in\textsc{Universal Halt}_\mathsf{NToN}$.
+      Ainsi \(\textsc{Halt}_\mathsf{NToN} \le_m \textsc{Universal Halt}_\mathsf{NToN}\), et \textsc{Universal Halt} est indécidable.
+
+    \item \textbf{\textsc{Existential Halt} est indécidable.}
+      On réduit \textsc{Halt} à \textsc{Existential Halt}.
+
+      Soit une instance $(P,n)$. On construit $Q$ tel que :
+      \[
+      P.\texttt{decide}(n)\ \text{termine}
+      \iff
+      (\exists m\in\mathbb{N},\ Q.\texttt{decide}(m)\ \text{termine}).
+      \]
+      Construction de $Q$ : sur entrée $m$,
+      \begin{itemize}
+      \item si $m=0$, $Q$ simule $P.\texttt{decide}(n)$ et termine ssi cette simulation termine ;
+      \item sinon, $Q$ boucle.
+      \end{itemize}
+      Alors $Q.\texttt{decide}(0)$ termine ssi $P.\texttt{decide}(n)$ termine, et $Q.\texttt{decide}(m)$ boucle pour tout $m\neq 0$.
+      Donc \(\textsc{Halt}_\mathsf{NToN} \le_m \textsc{Existential Halt}_\mathsf{NToN}\), et \textsc{Existential Halt} est indécidable.
+
+    \item \textbf{\textsc{Existential Halt} est semi-décidable.}
+      On décrit un semi-décideur $S$ pour \textsc{Existential Halt}.
+
+      Sur entrée $P$, $S$ procède par entrelacement :
+      pour $t=0,1,2,\dots$, il lance (ou prolonge) les simulations de
+      \[
+      P.\texttt{decide}(0),\ P.\texttt{decide}(1),\ \dots,\ P.\texttt{decide}(t)
+      \]
+      pendant un nombre borné de pas, et accepte dès qu'il observe qu'une de ces simulations termine.
+
+      \begin{itemize}
+      \item S'il existe $m$ tel que $P.\texttt{decide}(m)$ termine, alors cette terminaison sera observée à un tour fini, et $S$ accepte.
+      \item Si pour tout $m$, $P.\texttt{decide}(m)$ ne termine pas, alors aucune simulation ne termine et $S$ n'accepte jamais.
+      \end{itemize}
+
+    \item \textbf{Complémentaire de \textsc{Universal Halt}.}
+      Par négation des quantificateurs :
+      \[
+      \overline{\textsc{Universal Halt}_\mathsf{NToN}}
+      = \{\, P \mid \neg(\forall m\in\mathbb{N},\ P.\texttt{decide}(m)\ \text{termine}) \,\}
+      = \{\, P \mid \exists m\in\mathbb{N},\ P.\texttt{decide}(m)\ \text{ne termine pas} \,\}.
+      \]
+      En mots : les programmes qui bouclent sur au moins une entrée.
+
+    \item \textbf{\textsc{Universal Halt} n'est pas semi-décidable.}
+      On réduit \(\overline{\textsc{Halt}_\mathsf{NToN}}\) à \textsc{Universal Halt}.
+
+      On utilise le fait standard : \textsc{Halt} est semi-décidable, mais
+      \(\overline{\textsc{Halt}_\mathsf{NToN}}\) ne l'est pas (sinon \textsc{Halt} serait décidable).
+
+      Soit une instance $(P,n)$ de \(\overline{\textsc{Halt}_\mathsf{NToN}}\), i.e. $P.\texttt{decide}(n)$ ne termine pas.
+      On construit un programme $Q$ tel que :
+      \[
+      P.\texttt{decide}(n)\ \text{ne termine pas}
+      \iff
+      (\forall m\in\mathbb{N},\ Q.\texttt{decide}(m)\ \text{termine}).
+      \]
+      Construction de $Q$ : sur entrée $m$, $Q$ simule $P.\texttt{decide}(n)$ pendant exactement $m$ pas.
+      \begin{itemize}
+      \item Si $P.\texttt{decide}(n)$ a terminé pendant ces $m$ pas, alors $Q$ boucle.
+      \item Sinon, $Q$ termine (par exemple en renvoyant $0$).
+      \end{itemize}
+
+      \emph{Correction.}
+      \begin{itemize}
+      \item Si $P.\texttt{decide}(n)$ ne termine pas, alors pour tout $m$, la simulation bornée à $m$ pas ne voit jamais l'arrêt,
+        donc $Q.\texttt{decide}(m)$ termine pour tout $m$ : $Q\in\textsc{Universal Halt}_\mathsf{NToN}$.
+      \item Si $P.\texttt{decide}(n)$ termine en $T$ pas, alors pour tout $m\ge T$ la simulation bornée voit l'arrêt,
+        donc $Q.\texttt{decide}(m)$ boucle : $Q\notin\textsc{Universal Halt}_\mathsf{NToN}$.
+      \end{itemize}
+
+      Ainsi \(\overline{\textsc{Halt}_\mathsf{NToN}} \le_m \textsc{Universal Halt}_\mathsf{NToN}\).
+      Si \textsc{Universal Halt} était semi-décidable, alors
+      \(\overline{\textsc{Halt}_\mathsf{NToN}}\) le serait aussi, contradiction. Donc
+      \textsc{Universal Halt} n'est pas semi-décidable.
+
+    \end{enumerate}
+
+  \end{correction}
+
+  \fi
+
+\end{exercice}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{exercice}[Les problèmes de l'arrêt universel et existentiel]
+
+  Soit $\Sigma$ un alphabet. On rappelle la définition du problème de l'arrêt (\textsc{halt}),
+  et on introduit les problèmes de l'arrêt universel (\textsc{universal halt})  et de
+  l'arrêt existentiel (\textsc{existential halt}).
+
+  \Probleme{Halt}{
+    Une machine de Turing $M$, et un mot $u\in \Sigma^\star$.
+  }{
+    Est-ce que l'exécution de $M$ sur $u$ termine ?
+  }
+
+  \Probleme{Universal halt}{
+    Une machine de Turing $M$.
+  }{
+    Est-ce que, pour tout mot $u\in \Sigma^\star$, l'exécution de $M$ sur $u$ termine ?
+  }
+
+  \Probleme{Existential halt}{
+    Une machine de Turing $M$.
+  }{
+    Existe-t-il un mot $u\in \Sigma^\star$ tel que l'exécution de $M$ sur $u$ termine ?
+  }
+  
+  \begin{question}
+  \item On veut démontrer que le problème \textsc{universal halt} est indécidable par réduction du problème \textsc{halt}.
+    Quels doivent être le domaine et l'ensemble de retour de la réduction par mappage ? 
+  \end{question}
+  \begin{correction}
+    \begin{description}
+    \item[Entrée :] une instance de \textsc{halt}, c'est à-dire un couple $\langle M, u \rangle$.
+    \item[Sortie :] une instance $M'$ de \textsc{universal halt}, telle que $M$ termine $u$ si,
+      et seulement si, $M'$ termine sur $v$ pour tout $v$. 
+    \end{description}
+  \end{correction}
+
+  \begin{question}
+  \item Démontrer que le problème \textsc{universal halt} est indécidable par réduction du problème \textsc{halt}.
+  \end{question}
+  \begin{correction}
+    Il suffit de considérer la réduction
+    $f : \left\{\begin{array}{rcll}
+    \textsc{halt}^{\mathcal{I}} &\rightarrow& \textsc{universal halt}^{\mathcal{I}}\\
+    \langle M, u \rangle & \mapsto& M'
+    \end{array}\right.$.
+    
+    
+    
+    
+    La réduction $f$ est bien calculable, et pour tout $M$, 
+    $M \in L_{\mathit{empty\_halt}} \Leftrightarrow f(M) = \langle M, \varepsilon \rangle \in L_{\mathit{halt}}$.
+  \end{correction}
+  
+  \begin{question}
+  \item Démontrer que le problème \textsc{existential halt} est indécidable par réduction du problème \textsc{halt}.
+  \item Démontrer que le problème \textsc{existential halt} est semi-décidable.
+  \item Décrire le complémentaire\footnote{Le mot ``complémentaire'' doit être compris au sens ensembliste des langages :
+  une instance est positive dans le complémentaire de \textsc{universal halt} si, et seulement si, elle est négative dans \textsc{universal halt}.}
+    du problème \textsc{universal halt}. 
+  \item En déduire que le problème \textsc{universal halt} n'est pas semi-décidable.
+  \end{question}
+
+\end{exercice}
+
+
+
+
+\begin{correction}
+  \begin{question}
+  \item 
+    Il suffit de considérer la réduction
+    $f : \left\{\begin{array}{rcll}
+    \{0,1\}^\star &\rightarrow& (\{0,1\}^\star)^2\\
+    M & \mapsto& \langle M, \varepsilon \rangle
+    \end{array}\right.$.
+
+    La réduction $f$ est bien calculable, et pour tout $M$, 
+    $M \in L_{\mathit{empty\_halt}} \Leftrightarrow f(M) = \langle M, \varepsilon \rangle \in L_{\mathit{halt}}$.
+  \item 
+    On y réduit le problème de l'arrêt. La réduction est similaire au problème de l'arrêt sur chaîne vide : 
+    %
+    $\mathit{initialiseur} : \left\{\begin{array}{rcll}
+    (\{0,1\}^\star)^\star &\rightarrow& \{0,1\}^\star\\
+    \langle M, u \rangle & \mapsto&  \mathit{initialiseur}(\langle M, u \rangle)
+    \end{array}\right.$, \\où $\mathit{initialiseur}(\langle M, u \rangle)$
+    efface son ruban, écrit $u$, puis simule $M$ : 
+
+    \begin{tikzpicture}[turingMachine]
+      \state[initial]   (q0) at (0,0) {}; 
+      \state            (q1) at (1,0) {}; 
+      \state            (q2) at (2,0) {}; 
+      \state            (q3) at (3,0) {}; 
+      \state            (M0) at (4,0) {}; 
+      \state[accepting] (Mf) at (5,0) {}; 
+      
+      \path         (q0) edge[loop above] node {\smAlign{\smTMtransR{0}{\blank}\smTMtransR[u]{1}{\blank}}} (q0);
+      \path         (q0) edge             node {\smTMtransL{\blank}{u_{|u|}}}                              (q1);
+      \path[dashed] (q1) edge                                                                              (q2);
+      \path         (q2) edge             node {\smTMtransL{\blank}{u_{1}}}                                (q3);
+      \path         (q3) edge             node {\smTMtransR{\blank}{\blank}}                              (M0);
+      \path[dashed] (M0) edge[bend left]                                                                   (Mf);
+      \path[dashed] (M0) edge[bend right]                                                                  (Mf);
+    \end{tikzpicture}
+
+  \end{question}
+  
+\end{correction}
+
+\endgroup
+\endinput

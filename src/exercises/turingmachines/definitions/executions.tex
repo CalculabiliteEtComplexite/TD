@@ -1,0 +1,92 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Deterministic Turing machines
+% Exercise: Executions of a Turing machine
+
+\begingroup
+\begin{exercice}[Exécution d'une machine de Turing]\label{exo:turingmachines/definitions/executions}
+  
+  On se donne la machine de Turing déterministe $M$ suivante sur l'alphabet $\Sigma = \{a, b\}$. 
+
+  \begin{center}
+    \begin{tikzpicture}[turingMachine, x=30mm, y=15mm]
+      \state[initial]   (0) at (5,1) {$0$};
+      \state            (1) at (4,0) {$1$};
+      \state            (2) at (5,0) {$2$};
+      \state            (3) at (6,0) {$3$};
+      \state[accepting] (4) at (6,1) {$4$};
+      
+      \path (0) edge             node[sloped] {\smTMtransR{a}{c}} (1);
+      \path (1) edge[loop below] node         {\smAlign{\smTMtransR{a}{a}\smTMtransR{c}{c}}} (1);
+      \path (1) edge             node         {\smTMtransL{b}{c}} (2);
+      \path (2) edge[loop below] node         {$\begin{array}{c}\smTMtransL{x}{x} \\ \forall x\in \{a, b, c\}\end{array}$} (2);
+      \path (2) edge             node[sloped] {\smTMtransR{\blank}{\blank} } (0);
+      \path (0) edge             node[sloped] {\smTMtransR{b}{c}} (3);
+      \path (3) edge[loop below] node         {\smAlign{\smTMtransR{b}{b}\smTMtransR{c}{c}}} (3);
+      \path (3) edge             node[swap]   {\smTMtransL{a}{c}} (2);
+      \path (0) edge[loop above] node         {\smTMtransR{c}{c}} (0);
+      \path (0) edge             node         {\smTMtransR{\blank}{\blank}} (4);
+    \end{tikzpicture}
+  \end{center}
+  
+  \begin{question}
+  \item Donnez la suite des configurations de l'exécution de $M$ sur $abab$ et sur $aaba$.
+  \end{question}
+  \begin{correction}
+    
+    $\begin{array}{rc@{\quad \langle\,}r@{,~}c@{,~}l@{\,\rangle}}
+      C_{\mathit{init}}(abab)
+      & =        & \varepsilon & 0 & abab        \\
+      & \leadsto & c           & 1 & bab         \\
+      & \leadsto & \varepsilon & 2 & ccab        \\
+      & \leadsto & \varepsilon & 2 & \blank ccab \\
+      & \leadsto & \varepsilon & 0 & ccab        \\
+      & \leadsto & c           & 0 & cab         \\
+      & \leadsto & cc          & 0 & ab          \\
+      & \leadsto & ccc         & 1 & b           \\
+      & \leadsto & cc          & 2 & cc          \\
+      & \leadsto & c           & 2 & ccc         \\
+      & \leadsto & \varepsilon & 2 & cccc        \\
+      & \leadsto & \varepsilon & 2 & \blank cccc \\
+      & \leadsto & \varepsilon & 0 & cccc        \\
+      & \leadsto & c           & 0 & ccc         \\
+      & \leadsto & cc          & 0 & cc          \\
+      & \leadsto & ccc         & 0 & c           \\
+      & \leadsto & cccc        & 0 & \varepsilon \\
+      & \leadsto & cccc\blank  & 4 & \varepsilon \\
+    \end{array}$
+    $\begin{array}{rc@{\quad \langle\,}r@{,~}c@{,~}l@{\,\rangle}}
+      C_{\mathit{init}}(aaba)
+      & =        & \varepsilon & 0 & aaba        \\
+      & \leadsto & c           & 1 & aba         \\
+      & \leadsto & ca          & 1 & ba          \\
+      & \leadsto & c           & 2 & aca         \\
+      & \leadsto & \varepsilon & 2 & caca        \\
+      & \leadsto & \varepsilon & 2 & \blank caca \\
+      & \leadsto & \varepsilon & 0 & caca        \\
+      & \leadsto & c           & 0 & aca         \\
+      & \leadsto & cc          & 1 & ca          \\
+      & \leadsto & ccc         & 1 & a           \\
+      & \leadsto & ccca        & 1 & \varepsilon \\
+    \end{array}$
+  \end{correction}
+  
+  \begin{question}
+  \item Les mots $abab$ et $aaba$ sont-ils acceptés par $M$ ? 
+  \end{question}
+  \begin{correction}
+    $abab$ est accepté,  mais $aaba$ est rejeté
+  \end{correction}
+  
+  \begin{question}
+  \item Quel est le langage reconnu par $M$ ? 
+  \end{question}
+  \begin{correction}
+    $\{u \in \{a, b\}^\star \mid |u|_a = |u|_b \}$
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

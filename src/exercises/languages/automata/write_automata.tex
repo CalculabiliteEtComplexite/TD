@@ -1,0 +1,82 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Finite state automata
+% Exercise: Automaton deciding a language
+
+\begingroup
+
+\begin{exercice}[Automate reconnaissant un langage]\label{exo:languages/automata/write_automata}
+
+  Proposez un automate fini déterministe reconnaissant chacun des langages ci-dessous.
+  
+  \begin{question}
+  \item Le langage des mots sur l'alphabet $\{a,b\}$ contenant un nombre de $a$ divisible par $3$. 
+  \end{question}
+
+  \begin{correction}
+    On encode le nombre de $a$ modulo 3 dans les états de l'automate :
+
+    \begin{center}
+      \begin{tikzpicture}[automaton, size=20mm]
+        \state[initial, accepting]   (0) at (1,0) {$0$}; 
+        \state                       (1) at (0,1) {$1$}; 
+        \state                       (2) at (2,1) {$2$}; 
+
+        \path (0) edge[loop right] node {$b$} (0);
+        \path (1) edge[loop left]  node {$b$} (1);
+        \path (2) edge[loop right] node {$b$} (2);
+        \path (0) edge             node {$a$} (1);
+        \path (1) edge             node {$a$} (2);
+        \path (2) edge             node {$a$} (0);
+      \end{tikzpicture}
+    \end{center}
+    
+  \end{correction}
+
+  \begin{question}
+  \item Le langage sur l'alphabet $\{0,1\}$, des écritures binaires sans zéro initial de nombres entiers divisibles par $3$. 
+  \end{question}
+
+  \begin{correction}
+
+    En se basant sur l'identité $(2n + m) \mod 3 = (2(n \mod 3) + m) \mod 3$,
+    on peut n'encoder que le reste de la division par 3 du préfixe déjà analysé, en 3 états (0, 1 et 2).
+    Les transitions entre ces trois états sont obtenues grâce à la table de division suivante à gauche.
+    Il faut ajouter deux états $I$ et $F$ pour empêcher les $0$ inutiles à gauche du mot et le nombre $0$.
+
+    $$\begin{array}{|c||c|c|}
+      \hline
+      n\mod 3 & 2n+0\mod 3 & 2n+1\mod 3\\
+      \hline
+      0 & 0 & 1 \\
+      1 & 2 & 0 \\
+      2 & 1 & 2 \\
+      \hline
+    \end{array}$$
+
+    \begin{center}
+      \begin{tikzpicture}[automaton, size=20mm]
+        \state[initial]   (I) at (0,1) {$I$}; 
+        \state[accepting] (F) at (0,0) {$F$}; 
+        \state[accepting] (0) at (1,0) {$0$}; 
+        \state            (1) at (1,1) {$1$}; 
+        \state            (2) at (2,1) {$2$}; 
+
+        \path (I) edge             node       {$0$}    (F);
+        \path (I) edge             node       {$1$}    (1);
+        \path (1) edge[bend left]  node       {$1$}    (0);
+        \path (0) edge[bend left]  node       {$1$}    (1);
+        \path (1) edge[bend left]  node       {$0$}    (2);
+        \path (2) edge[bend left]  node       {$0$}    (1);
+        \path (0) edge[loop right]  node       {$0$}    (0);
+        \path (2) edge[loop right]  node       {$1$}    (2);
+      \end{tikzpicture}
+    \end{center}
+    
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

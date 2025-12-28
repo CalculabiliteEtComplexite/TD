@@ -1,0 +1,94 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Non deterministic Turing machines
+% Exercise: Executions of a non deterministic Turing machine
+
+\begingroup
+
+\begin{exercice}[Exécutions d'une machine de Turing non déterministe]\label{exo:turingmachines/nondeterministic/executions}
+  On se donne la machine de Turing non déterministe $M$ suivante. 
+
+  \begin{center}
+    \begin{tikzpicture}[turingMachine, x=35mm, y=25mm]
+      \state[initial above] (0) at (0,1) {$0$}; 
+      \state                (1) at (1,1) {$1$}; 
+      \state                (2) at (2,1) {$2$}; 
+      \state                (3) at (2,0) {$3$}; 
+      \state                (4) at (1,0) {$4$}; 
+      \state[accepting]     (5) at (0,0) {$5$}; 
+
+      \path (1) edge[loop below] node              {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}} (1);
+      \path (4) edge[loop left]  node              {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}}} (4);
+      \path (0) edge             node[sloped]      {\smTMtransR{a}{\blank}} (1);
+      \path (1) edge             node[sloped]      {\smTMtransL{\blank}{\blank}} (2);
+      \path (2) edge             node[sloped]      {\smTMtransL{b}{\blank}} (3);
+      \path (2) edge             node[swap,sloped] {\smTMtransL{b}{\blank}} (4);
+      \path (3) edge             node[swap,sloped] {\smTMtransL{b}{\blank}} (4);
+      \path (4) edge             node[swap,sloped] {\smTMtransR{\blank}{\blank}} (0);
+      \path (0) edge             node[swap,sloped] {\smTMtransR{\blank}{\blank}} (5);
+    \end{tikzpicture}
+  \end{center}
+  
+  \begin{question}
+  \item Donnez le graphe des configurations de $M$ accessibles à partir de $C_{\mathit{init}}(aabbb)$.
+    On pourra contracter les portions déterministes du graphe en écrivant
+    $c \leadsto^\star c'$ lorsqu'il existe un chemin $c=c_0\leadsto c_1\leadsto\cdots\leadsto c_k=c'$
+    tel que, pour tout $i<k$, la configuration $c_i$ n'a qu'un seul successeur accessible.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[x=25mm, y=15mm]
+      \node (0)  at (0,1) {$\langle \varepsilon, 0, aabbb       \rangle$}; 
+      \node (1)  at (1,1) {$\langle abbb,        2, \varepsilon \rangle$}; 
+      \node (2)  at (2,0) {$\langle abb,         4, \varepsilon \rangle$}; 
+      \node (3)  at (2,2) {$\langle ab,          4, \varepsilon \rangle$}; 
+      \node (4)  at (3,0) {$\langle bb,          2, \varepsilon \rangle$}; 
+      \node (5)  at (3,2) {$\langle b,           2, \varepsilon \rangle$}; 
+      \node (6)  at (4,0) {$\langle b,           4, \varepsilon \rangle$}; 
+      \node (7)  at (4,1) {$\langle \varepsilon, 4, \varepsilon \rangle$}; 
+      \node (8)  at (4,2) {$\langle \varepsilon, 3, \varepsilon \rangle$}; 
+      \node (9)  at (5,0) {$\langle \varepsilon, 0, b           \rangle$}; 
+      \node (10) at (5,1) {$\langle \varepsilon, 5, \varepsilon \rangle$}; 
+
+      \path (0)  edge[leadsto] node[auto]{$\star$} (1);
+      \path (1)  edge[leadsto]                     (2);
+      \path (1)  edge[leadsto] node[auto]{$\star$} (3);
+      \path (2)  edge[leadsto] node[auto]{$\star$} (4);
+      \path (3)  edge[leadsto] node[auto]{$\star$} (5);
+      \path (4)  edge[leadsto]                     (6);
+      \path (4)  edge[leadsto] node[auto]{$\star$} (7);
+      \path (5)  edge[leadsto]                     (7);
+      \path (5)  edge[leadsto]                     (8);
+      \path (6)  edge[leadsto] node[auto]{$\star$} (9);
+      \path (7)  edge[leadsto] node[auto]{$\star$} (10);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item Le mot $aabbb$ est-il reconnu par $M$ ? 
+  \end{question}
+  \begin{correction}
+    Deux exécutions mènent à une configuration acceptante $\langle \varepsilon, 5, \varepsilon \rangle$, donc le mot est reconnu. 
+  \end{correction}
+
+  \begin{question}
+  \item Quel est le langage reconnu par $M$ ? 
+  \end{question}
+  \begin{correction}
+    $\mathcal{L}(M) = \{a^n b^m \mid n\le m \le 2n\}$. 
+  \end{correction}
+
+  \begin{question}
+  \item Quelle est la complexité en temps non déterministe de $M$ ? 
+  \end{question}
+  \begin{correction}
+    À chaque itération de la boucle principale, on parcourt le mond une fois dans chaque sens, en supprimant au moins deux caractères.
+    Il y a donc au plus $\left\lceil \frac{n}{2} \right\rceil$ tours de boucle, et chaque tour de boucle a une complexité bornée par
+    $2n+2$ transitions. Finalement on ajoute une transition pour passer dans l'état $5$.
+    Ainsi, la complexité est $\mathcal{O}(n^2)$.
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

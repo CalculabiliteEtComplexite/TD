@@ -1,0 +1,127 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\begin{exercice}[Le problème TSP]
+
+  On s’intéresse au problème suivant :
+
+
+  \Probleme{Voyageur de commerce (TSP)}{
+    Un graphe complet non orienté $K$, des poids positifs sur les arêtes de $K$, et un entier $k$.
+  }{
+    Existe-t-il un cycle dans $K$, passant au moins une fois par chaque sommet,
+    et dont la somme des poids des arêtes est au plus $k$~?
+  }
+
+  \begin{question}
+
+  \item Montrer que \textsc{TSP} est dans NP.
+
+    \medskip
+    On souhaite effectuer une réduction de \textsc{Cycle Hamiltonien} (vu à l’exercice précédent) vers \textsc{TSP},  
+    c’est-à-dire :
+    \[
+    \textsc{Cycle Hamiltonien} \;\ge_P\; \textsc{TSP}.
+    \]
+    Pour cela, partant d’une instance quelconque $G$ de \textsc{Cycle Hamiltonien}, il faut construire une instance $(K, \text{poids}, k)$ de \textsc{TSP}, où :
+    \begin{itemize}
+    \item $K$ est un graphe complet (à définir),
+    \item les arêtes de $K$ portent des poids (à définir),
+    \item et $k$ est un entier (à définir également).
+    \end{itemize}
+
+    Le but est ensuite de montrer qu’on répond \textsc{Oui} à \textsc{Cycle Hamiltonien} pour $G$ si et seulement si on répond \textsc{Oui} à \textsc{TSP} pour $(K, \text{poids}, k)$.
+
+    \medskip
+    On propose la réduction suivante :
+    \begin{itemize}
+    \item $K$ possède autant de sommets que $G$ (on note $n$ leur nombre total) ;
+    \item pour toute arête $e$ existante dans $G$, le poids de $e$ dans $K$ vaut~$1$ ;
+    \item toutes les autres arêtes de $K$ ont un poids égal à $n + 1$ ;
+    \item enfin, on pose $k = n$.
+    \end{itemize}
+
+  \item Illustrer la réduction sur un graphe $G$ connexe à $n = 5$ sommets et $m = 7$ arêtes, de votre choix.
+
+  \item La réduction proposée s’effectue-t-elle en temps polynomial ? Justifier.
+
+  \item Dans le cas général, montrer que si l’on répond \textsc{Oui} à \textsc{Cycle Hamiltonien} pour $G$, alors on répond \textsc{Oui} à \textsc{TSP} pour $(K, \text{poids}, k)$.
+
+  \item Dans le cas général, montrer que si l’on répond \textsc{Oui} à \textsc{TSP} pour $(K, \text{poids}, k)$, alors on répond \textsc{Oui} à \textsc{Cycle Hamiltonien} pour $G$.
+
+  \item Sachant que \textsc{TSP} est dans NP (Question~1) et que
+    \[
+    \textsc{Cycle Hamiltonien} \;\ge_P\; \textsc{TSP}
+    \]
+    (Questions~3 à~5), que peut-on en déduire~?
+
+  \end{question}
+
+\end{exercice}
+
+\begin{correction}
+  \begin{question}
+
+  \item \textbf{TSP est dans NP.}
+  
+    Un certificat naturel est un cycle (une liste ordonnée des sommets, avec retour au point de départ).
+    \begin{itemize}
+      \item \emph{Vérification} : on s’assure que chaque sommet apparaît au moins une fois (temps $O(n)$ avec un marquage), puis on calcule la somme des poids des arêtes empruntées le long du cycle et on vérifie qu’elle est $\le k$ (temps $O(n)$ en représentation matricielle, $O(n \log n)$ si l’accès aux poids nécessite une recherche). 
+    \end{itemize}
+    La vérification est polynomiale, donc \textsc{TSP} $\in$ NP.
+
+  \item \textbf{Illustration de la réduction (exemple $n=5$, $m=7$).}
+  
+    Prenons, par exemple, le graphe simple et connexe $G$ sur $V=\{1,2,3,4,5\}$ avec les $7$ arêtes :
+    \[
+      E(G)=\{12,\,13,\,23,\,24,\,34,\,35,\,45\}.
+    \]
+    Construction de l’instance \textsc{TSP} $(K,\text{poids},k)$ :
+    \begin{itemize}
+      \item $K$ est le graphe complet sur $\{1,2,3,4,5\}$ ;
+      \item pour chaque arête $e\in E(G)$, on met $\text{poids}(e)=1$ ;
+      \item pour chaque autre arête de $K$ (celles absentes de $G$), on met $\text{poids}(e)=n+1=6$ ;
+      \item on pose $k=n=5$.
+    \end{itemize}
+    Ainsi, dans $K$, les arêtes $\{12,13,23,24,34,35,45\}$ valent $1$ et toutes les autres valent $6$ ; $k=5$.
+
+  \item \textbf{La réduction est polynomiale.}
+  
+    À partir de $G$ :
+    \begin{itemize}
+      \item on copie l’ensemble des sommets (temps $O(n)$) ;
+      \item on crée les $n(n-1)/2$ arêtes de $K$ et on affecte leur poids selon l’appartenance à $E(G)$ (temps $O(n^2)$ en représentation matricielle ou par table de hachage).
+    \end{itemize}
+    La construction $(K,\text{poids},k)$ s’effectue donc en temps polynomial en la taille de $G$.
+
+  \item \textbf{Si $G$ est \textsc{Oui} pour \textsc{Cycle Hamiltonien}, alors $(K,\text{poids},k)$ est \textsc{Oui} pour \textsc{TSP}.}
+  
+    S’il existe dans $G$ un cycle hamiltonien $C$ sur $n$ arêtes, ces $n$ arêtes appartiennent à $G$ ; dans $K$ elles ont donc toutes un poids $1$. La somme des poids le long de $C$ dans $K$ vaut donc $n=k$, d’où une réponse \textsc{Oui} à \textsc{TSP}.
+
+  \item \textbf{Si $(K,\text{poids},k)$ est \textsc{Oui} pour \textsc{TSP}, alors $G$ est \textsc{Oui} pour \textsc{Cycle Hamiltonien}.}
+  
+    Soit un cycle $C$ de $K$ passant au moins une fois par chaque sommet et de poids total $\le k=n$.
+    \begin{itemize}
+      \item Comme tous les poids sont $\ge 1$, tout cycle qui répète un sommet utilise au moins $n+1$ arêtes, donc a un coût $\ge n+1>n=k$ : impossible. Le cycle $C$ visite donc \emph{exactement une fois} chaque sommet (c’est un cycle hamiltonien).
+      \item Si $C$ contenait une arête de poids $n+1$, son coût serait $>n$ (puisqu’il a $n$ arêtes), contradiction. Donc toutes les arêtes de $C$ ont poids $1$, donc appartiennent à $G$.
+    \end{itemize}
+    Par conséquent, $C$ est un cycle hamiltonien de $G$.
+
+  \item \textbf{Conclusion (NP-complétude).}
+  
+    On a montré que \textsc{TSP} $\in$ NP (Question~1) et la réduction polynomiale
+    \[
+      \textsc{Cycle Hamiltonien} \;\ge_P\; \textsc{TSP}
+    \]
+    (Questions~3 à~5). Comme \textsc{Cycle Hamiltonien} est NP-complet, il s’ensuit que \textsc{TSP} (version décision « coût $\le k$ ») est NP-complet.
+
+  \end{question}
+\end{correction}
+
+\endgroup
+\endinput

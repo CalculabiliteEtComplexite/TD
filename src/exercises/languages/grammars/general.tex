@@ -1,0 +1,109 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Contextual languages
+% Exercise: Grammars and arithmetic computations
+
+\begingroup
+
+\begin{exercice}[Grammaires et calculs arithmétiques]\label{exo:languages/grammars/general}
+
+  On considère la grammaire suivante :
+
+  $$G \eqdef \left\langle \{0, 1, +, =\}, \{S, A, B, U, Z\}, S,
+  \left\{\begin{array}{lll}
+  S   &\rightarrow& 1 + A \\
+  A &\rightarrow& Z B 1 \mid U A 0 \mid Z = 1 \\
+  B &\rightarrow& Z B 0 \mid U B 1 \mid = \\
+  +Z  &\rightarrow& +0 \\
+  +U  &\rightarrow& +1 \\
+  0U &\rightarrow& U0 \\
+  0Z &\rightarrow& Z0 \\
+  1U &\rightarrow& U1 \\
+  1Z &\rightarrow& Z1 \\
+  \end{array}\right\}\right\rangle$$
+
+  \begin{question}
+  \item Indiquer à quels types de la hiérarchie de Chomsky la grammaire $G$ peut appartenir.
+  \end{question}
+  \begin{correction}
+    La grammaire est seulement de type 0, car les règles du type $0U \rightarrow U0$ ne sont  pas contextuelles.
+    Cependant, la grammaire est non contractante, donc le langage est au pire du type 1. 
+  \end{correction}
+  
+  \begin{question}
+  \item Générer deux mots par la grammaire.
+  \end{question}
+  \begin{correction}
+    On peut générer $1+0=1$ et $1+01=10$
+    \begin{itemize}
+    \item $\begin{array}[t]{rclclclcl}
+      S
+      &\vdash& 1+A 
+      &\vdash& 1+Z=1 
+      &\vdash& 1+0=1
+    \end{array}$
+    \item $\begin{array}[t]{rclclclcl}
+      S
+      &\vdash& 1+A 
+      &\vdash& 1+UA0 
+      &\vdash& 1+UZB10 \\
+      &\vdash& 1+UZ=10 
+      &\vdash& 1+1Z=10 
+      &\vdash& 1+Z1=10 
+      &\vdash& 1+01=10
+    \end{array}$
+    \end{itemize}
+  \end{correction}
+  
+  \begin{question}
+  \item Appliquer l'algorithme de recherche ascendante par force brute pour déterminer
+    si les mots suivants appartiennent au langage engendré par $G$ :
+    $$1+1=1, \quad 1+10=11.$$
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item $1+1=1$ n'appartient pas au langage
+    \item $1+10=11$ appartient au langage
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item En déduire le langage engendré par la grammaire $G$.
+  \end{question}
+  \begin{correction}
+    Les additions par 1 en binaire, avec des 0 inutiles potentiels à gauche. 
+    $$\{ 1 + u = v \mid |u| = |v| \land \exists n\in \mathbb{N}, u \in 0^\star(n)_2 \land v \in 0^\star (1+n)_2 \}$$
+  \end{correction}
+  
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item Existe-t-il une grammaire de type plus élevé engendrant le même langage que $G$ ? 
+  \end{question}
+  \begin{correction}
+    On peut démontrer que le langage n'est pas algébrique en utilisant le lemme de pompage, et en posant $u = 1+10^N01^N = 10^N10^N$ et $i=2$.
+
+    Il est possible de la transformer en grammaire de type 1. En effet,
+    on peut automatiquement transformer des règles du type $AB\rightarrow BA$ en $\{AB \rightarrow AX, AX\rightarrow YX, YX\rightarrow BX, BX\rightarrow BA\}$.
+    Il faut alors remplacer les $0$ et $1$ par des non-terminaux $X$ et $Y$ pour pouvoir appliquer la transformation dans les 4 dernières règles.
+    
+    $$\left\langle \{0, 1, +, =\}, \{S, A, ..., J, U, X, Y, Z\}, S,
+    \left\{\begin{array}{lll}
+    S   &\rightarrow& 1 + A \\
+    A &\rightarrow& Z B 1 \mid U A 0 \mid Z = 1 \\
+    B &\rightarrow& Z B 0 \mid U B 1 \mid = \\
+    +Z  &\rightarrow& +X \\
+    +U  &\rightarrow& +Y \\
+    XU &\rightarrow& CU, CU \rightarrow CD, CD \rightarrow UD, UD \rightarrow UX \\
+    XZ &\rightarrow& EZ, EZ \rightarrow EF, EF \rightarrow ZF, ZF \rightarrow ZX \\
+    YU &\rightarrow& GU, GU \rightarrow GH, GH \rightarrow UH, UH \rightarrow UY \\
+    YZ &\rightarrow& IZ, IZ \rightarrow IJ, IJ \rightarrow ZJ, ZJ \rightarrow ZY \\
+    X &\rightarrow& 0 \\
+    Y &\rightarrow& 1 \\
+    \end{array}\right\}\right\rangle$$
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

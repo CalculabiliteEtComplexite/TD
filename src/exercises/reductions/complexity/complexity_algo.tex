@@ -1,0 +1,129 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\begin{exercice}[Analyse de complexité]
+
+  On cherche à analyser la complexité en temps des algorithmes suivants en fonction de la taille de leur entrée.
+  Pour chaque algorithme :
+  \begin{itemize}
+  \item Identifier l'entrée, son encodage et sa taille.
+  \item Donner une borne asymptotique de sa complexité en fonction de la taille de l'entrée en notation $\mathcal{O}$.
+  \item L'algorithme est-il polynomial ?
+  \end{itemize}
+
+  \begin{question}
+  \item Test de primalité :
+  \end{question}
+  
+  \begin{algorithm}[H]
+    \SetKwFunction{Primality}{is\_prime}
+    \Fun{$\Primality(n \in \mathbb{N}) \in \mathbb{B}$}{
+      $i \leftarrow 2$\;
+      \While{$i^2 \le n$}{
+        \lIf{$n \equiv 0 \pmod{i}$}{\Return \False;}
+        $i \leftarrow i + 1$\;
+      }
+      \Return \True;
+    }
+  \end{algorithm}
+  \begin{correction}
+    \begin{itemize}
+    \item L'entrée est $n$, codé en binaire. Sa taille est donc $m = \lceil \log_2(n+1) \rceil$.
+    \item La boucle incrémente $i$ de $2$ à $\lfloor \sqrt{n} \rfloor$, donc effectue $\Theta(\sqrt{n})$ itérations.
+      À chaque itération, on calcule $i^2$ qu'on compare $n$ et on effectue un test de divisibilité.
+      Ces opérations portent sur des entiers de $\Theta(\log n)=\Theta(m)$ bits, donc coûtent au plus polynomial en $m$.
+      On obtient donc un temps
+      $$\Theta(\sqrt{n}\cdot \mathrm{poly}(m)).$$
+      Comme $n = \Theta(2^m)$, on a $\sqrt{n}=\Theta(2^{m/2})$, donc le temps vaut
+      $\Theta(2^{m/2}\cdot \mathrm{poly}(m)).$
+    \item L'algorithme est exponentiel en la taille de l'entrée. Il n'est donc pas polynomial.
+      
+      Par contre, il existe un algorithme polynomial pour ce problème.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Multiplication à la russe :
+  \end{question}
+  \begin{algorithm}[H]
+    \SetKwFunction{Russian}{multiply}
+    \Fun{$\Russian(a\in\mathbb{N}, b\in\mathbb{N}) \in \mathbb{N}$}{
+      $r \leftarrow 0$\;
+      \While{$b > 0$}{
+        \lIf{$b \equiv 1 \pmod{2}$}{$r \leftarrow r + a$;}
+        $a \leftarrow 2a$;\\
+        $b \leftarrow \lfloor b/2 \rfloor$;
+      }
+      \Return $r$\;
+    }
+  \end{algorithm}
+  \begin{correction}
+    \begin{itemize}
+    \item L'entrée est le couple $(a,b)$, codé en binaire. Sa taille est
+      $m = \Theta(\log a + \log b)$.
+    \item À chaque itération, $b$ est remplacé par $\lfloor b/2 \rfloor$, donc le nombre d'itérations est
+      $\Theta(\log b)=\mathcal{O}(m)$.
+      À chaque itération, on effectue un nombre constant d'opérations arithmétiques (test de parité, addition,
+      décalage) sur des entiers de taille $\mathcal{O}(m)$ bits, donc coût $\mathrm{poly}(m)$.
+      Ainsi, le temps total est
+      \[
+      \mathcal{O}(\log b \cdot \mathrm{poly}(m)) = \mathrm{poly}(m).
+      \]
+    \item Oui, l'algorithme est polynomial en la taille de l'entrée.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Sommes de sous-ensembles :
+  \end{question}
+  \begin{algorithm}[H]
+    \SetKwFunction{Subset}{subset\_sum}
+    \SetKwFunction{Aux}{aux}
+    \Fun{$\Subset(\mathit{values}\in \mathbb{N}\,[\,]) \in \mathbb{B}$}{
+      \Return $\Aux(values, 0, \emptyset)$\;
+    }
+    \Fun{$\Aux(\mathit{values}\in \mathbb{N}\,[\,], i\in \mathbb{N}, \mathit{sum}\in \mathbb{N}) \in \mathbb{B}$}{
+      \lIf{$i = |\mathit{values}|$}{
+        \Return $\mathit{sum} = 0$;
+      }
+      \lElse{
+        \Return $\Aux(\mathit{values}, i+1, \mathit{sum}) \lor \Aux(\mathit{values}, i+1, \mathit{sum} + \mathit{values}[i])$;
+      }
+    }
+  \end{algorithm}
+  \begin{correction}
+    \begin{itemize}
+    \item L'entrée est le tableau \texttt{values} contenant $n = |\mathit{values}|$ entiers naturels.
+      On suppose que chaque entier est codé en binaire sur au plus $B$ bits.
+      La taille de l'entrée est donc $m = \Theta(nB)$.
+
+    \item La fonction récursive \texttt{aux} est appelée avec un paramètre $i$ qui
+      varie de $0$ à $n$.
+      À chaque appel avec $i < n$, l'algorithme effectue deux appels récursifs :
+      l'un sans inclure \texttt{values[i]}, l'autre en l'incluant dans la somme.
+      L'arbre de récursion est donc un arbre binaire complet de profondeur $n$,
+      comportant $\Theta(2^n)$ appels.
+
+      À chaque appel, les opérations effectuées (comparaison, addition, test logique)
+      portent sur des entiers de taille $\mathcal{O}(B + \log n)$ bits, et ont donc
+      un coût polynomial en $B$.
+      Le temps total est ainsi
+      $$
+      \mathcal{O}(2^n \cdot \mathrm{poly}(B)).
+      $$
+
+    \item La complexité est exponentielle en $n$.
+      Comme $n \le m$, l'algorithme est également exponentiel en la taille de l'entrée.
+      Il n'est donc pas polynomial.
+    \end{itemize}
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

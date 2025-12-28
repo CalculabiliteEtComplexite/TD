@@ -1,0 +1,261 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Introduction
+% Section: Words and languages
+% Exercise: Words
+
+\begingroup
+
+\begin{exercice}[Le problème SAT et la taille de ses clauses]
+
+  Voici les définitions des problèmes \textsc{Sat} et \textsc{3-Sat}.
+
+  \Probleme{Sat}{
+    Une formule booléenne $\varphi$ en forme normale conjonctive (FNC), construite à partir d’un ensemble $X = \{x_1, x_2, \dots, x_n\}$ de $n$ variables.
+  }{
+    Existe-t-il une affectation (Vrai/Faux) de chacune des variables de $X$ qui rend $\varphi$ satisfiable ?
+  }
+
+  On sait que \textsc{Sat} est NP-complet (théorème de Cook–Levin, 1971).  
+  La question qui se pose est de savoir si le problème devient plus simple si l’on se limite aux instances dont les clauses ont une taille « limitée ».  
+  On commence avec la taille~3.
+
+  \Probleme{3-Sat}{
+    Une formule booléenne $\varphi$ en forme normale conjonctive (FNC), construite à partir d’un ensemble $X = \{x_1, x_2, \dots, x_n\}$ de $n$ variables,
+    et dans laquelle chaque clause contient au plus trois littéraux.
+  }{
+    Existe-t-il une affectation (Vrai/Faux) de chacune des variables de $X$ qui rend $\varphi$ satisfiable ?
+  }
+
+  \begin{question}
+    \item Montrer que \textsc{3-Sat} est dans NP.
+
+    \medskip
+    On veut maintenant montrer que \textsc{Sat} se réduit en temps polynomial à \textsc{3-Sat}, ce que l’on note
+    \[
+    \textsc{Sat} \le_P \textsc{3-Sat}.
+    \]
+    Pour cela, partant d’une instance quelconque $\varphi$ de \textsc{Sat}, on construit une instance $\varphi'$ de \textsc{3-Sat} de la manière suivante :
+    \begin{enumerate}
+    \item Pour toute clause $C$ de $\varphi$ qui contient au plus trois littéraux, on fixe $C' = C$ dans $\varphi'$.
+    \item Pour toute clause $C = (a_1 \lor a_2 \lor \dots \lor a_k)$ de $\varphi$ contenant $k \ge 4$ littéraux,
+      on construit dans $\varphi'$ l’expression :
+      \[
+      E'_C = (a_1 \lor a_2 \lor y_1)
+      \land (\neg y_1 \lor a_3 \lor y_2)
+      \land (\neg y_2 \lor a_4 \lor y_3)
+      \land \dots
+      \land (\neg y_{k-4} \lor a_{k-2} \lor y_{k-3})
+      \land (\neg y_{k-3} \lor a_{k-1} \lor a_k),
+      \]
+      où les $y_i$ sont de nouvelles variables.
+    \item La formule $\varphi'$ relie toutes les clauses et expressions listées ci-dessus par des conjonctions logiques.
+    \end{enumerate}
+
+    \item Illustrer cette réduction dans le cas où
+    \[
+    \varphi = (x_1 \lor \neg x_2)
+    \land (x_1 \lor x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5 \lor \neg x_6 \lor x_7)
+    \land (\neg x_2 \lor x_3 \lor \neg x_5).
+    \]
+
+    \item Dans le cas général, cette réduction se fait-elle bien en temps polynomial ?
+
+    \item Montrer que si une clause $C$ à $k \le 3$ littéraux est satisfaite dans $\varphi$, alors sa clause correspondante $C'$ est satisfaite dans $\varphi'$.
+
+    \medskip
+    Soit $C = (a_1 \lor a_2 \lor \dots \lor a_k)$ une clause à $k \ge 4$ littéraux dans $\varphi$ et $E'_C$ son expression correspondante dans $\varphi'$.
+    Supposons que $C$ soit satisfaite. Il existe donc au moins une variable, que l’on appellera $a_i$, qui rend $C$ vraie.
+
+    \item Montrer que l’affectation
+    \[
+    y_1 = y_2 = \dots = y_{i-2} = \text{Vrai}
+    \quad \text{et} \quad
+    y_{i-1} = y_i = \dots = y_{k-3} = \text{Faux}
+    \]
+    satisfait $E'_C$.
+
+    \item Que déduit-on des questions précédentes~?
+
+    \medskip
+    Une clause $C'$ de $\varphi'$ construite à partir d’une clause $C$ à $k \le 3$ littéraux de $\varphi$ est appelée une \emph{petite clause}.
+
+    \item Montrer que si une petite clause $C'$ est satisfaite dans $\varphi'$, alors la clause $C$ dont elle provient est satisfaite dans $\varphi$.
+
+    \item Montrer que si une expression $E'_C$ est satisfaite dans $\varphi'$, alors au moins un des $a_i$ doit être vrai.  
+    En déduire que si une expression $E'_C$ est satisfaite dans $\varphi'$, alors la clause $C$ dont elle provient est satisfaite dans $\varphi$.
+
+    \item Que déduit-on des questions précédentes~?
+
+    \item Que déduit-on des questions~3, 6 et~9~?
+
+    \item Que déduit-on des questions~1 et~10~?
+
+    \item Montrer que le problème \textsc{3-Sat} limité aux clauses de taille exactement égale à~3 est NP-complet.  
+    \emph{Indice :} adapter la réduction précédente pour traiter les clauses de taille $< 3$.
+
+    \item Montrer que, pour tout $k \ge 3$, le problème \textsc{k-Sat} limité aux clauses de taille au plus égale à $k$ est NP-complet.  
+    Montrer qu’il en est de même pour le problème \textsc{k-Sat} limité aux clauses de taille exactement égale à $k$.
+
+    \medskip
+    Il reste à résoudre la question de la complexité du problème \textsc{2-Sat} (c’est-à-dire \textsc{Sat} limité aux clauses de taille~2).
+
+    \item Une clause de taille~2, $C = (a \lor b)$, peut aussi s’écrire comme la conjonction de deux implications.  
+    Lesquelles~?
+
+    \medskip
+    Partant de ce constat, on peut montrer que \textsc{2-Sat} est dans~P, en passant par le \emph{graphe des implications} $G = (V, A)$, où, pour une instance $\varphi$ de \textsc{2-Sat} :
+    \begin{itemize}
+    \item $V$ est l’ensemble des littéraux de $\varphi$ ;
+    \item $A$ est l’ensemble des arcs $(\ell, \ell')$ correspondant à une implication de la forme $\ell \Rightarrow \ell'$.
+    \end{itemize}
+
+    \item Dessiner le graphe $G_\varphi$ des implications de la formule :
+    \[
+    \varphi = (\neg x_1 \lor x_2) \land (\neg x_1 \lor \neg x_2) \land (x_1 \lor \neg x_3) \land (x_1 \lor x_3).
+    \]
+
+    \item En observant $G_\varphi$, montrer que $\varphi$ ne peut pas être satisfaite.
+
+    \medskip
+    \emph{Remarque :} on peut en réalité montrer qu’une formule $\varphi$ peut être satisfaite si et seulement si son graphe des implications $G_\varphi$ ne contient aucun circuit passant à la fois par $\ell$ et $\neg\ell$.  
+    Cette propriété peut être vérifiée par un algorithme de graphes qui calcule, en temps polynomial, les composantes fortement connexes de $G_\varphi$.  
+    Ainsi, \textsc{2-Sat} est dans~P : la construction puis l’analyse de $G_\varphi$ se font toutes deux en temps polynomial.
+  \end{question}
+
+\end{exercice}
+
+\begin{correction}
+  \begin{question}
+
+  \item Le but ici est de donner des arguments « en français », sans trop formaliser.  
+    L’appartenance à NP se justifie en deux étapes :
+    \begin{enumerate}
+      \item proposer une solution potentielle doit se faire en temps polynomial ;
+      \item vérifier si cette solution convient doit aussi se faire en temps polynomial.
+    \end{enumerate}
+    Ici, comme pour \textsc{Sat} :
+    \begin{itemize}
+      \item proposer une solution $S$ consiste à donner une valeur (Vrai/Faux) à chaque $x_i$, ce qui se fait en $O(n)$, où $n$ est le nombre de variables ;
+      \item vérifier si $S$ convient consiste à injecter ces valeurs dans la formule $\varphi$ et à en évaluer la vérité, ce qui se fait en $O(\ell)$, où $\ell$ est la taille (nombre de littéraux) de $\varphi$.
+    \end{itemize}
+
+  \item En rouge, ce qui a été modifié entre $\varphi$ et $\varphi'$.  
+    \[
+      \varphi' =
+      (x_1 \lor \neg x_2)
+      \land (x_1 \lor x_2 \lor y_1)
+      \land (\neg y_1 \lor \neg x_3 \lor y_2)
+      \land (\neg y_2 \lor \neg x_4 \lor y_3)
+      \land (\neg y_3 \lor x_5 \lor y_4)
+      \land (\neg y_4 \lor \neg x_6 \lor x_7)
+      \land (\neg x_2 \lor x_3 \lor \neg x_5).
+    \]
+
+  \item Chaque clause « longue » (de taille $k>3$) est transformée en $k-2$ clauses de taille~3, en ajoutant $k-3$ nouvelles variables.  
+    Si $\ell$ est la taille de $\varphi$, on a au plus $O(\ell)$ clauses longues, donc la taille de $\varphi'$ est au pire en $O(\ell^2)$.  
+    Le nombre de variables dans $\varphi'$ est en $O(n+\ell)$, et le passage de $\varphi$ à $\varphi'$ se fait donc en temps polynomial.
+
+  \item La clause étant inchangée, si elle est satisfaite dans $\varphi$, elle l’est nécessairement dans $\varphi'$.
+
+  \item On peut illustrer sur l’exemple de la Question 2, en supposant que la variable $a_i$ correspond à $x_4$ (donc $x_4 = \text{Faux}$).  
+    Si $a_i$ apparaît dans la première (resp. dernière) clause, alors mettre tous les $y_j$ à Faux (resp. à Vrai) suffit à satisfaire $E'_C$.  
+    Dans les autres cas : la clause contenant $a_i$ est satisfaite, donc ni $\neg y_{i-2}$ ni $y_{i-1}$ (qui entourent $a_i$) ne sont contraints.  
+    Les clauses « à gauche » de $a_i$ contiennent toutes un littéral $y_j$ positif ; on peut donc fixer $y_1, \dots, y_{i-2}$ à Vrai.  
+    Symétriquement, les clauses « à droite » contiennent des littéraux $\neg y_j$ ; on peut donc fixer $y_{i-1}, \dots, y_{k-3}$ à Faux.  
+    Cette affectation satisfait bien $E'_C$.
+
+  \item Les réponses aux Questions 4 et 5 montrent que si $\varphi$ est satisfiable, alors $\varphi'$ l’est aussi.
+
+  \item La clause étant inchangée, si elle est satisfaite dans $\varphi'$, elle l’est nécessairement dans $\varphi$.
+
+  \item Raisonnons par contradiction.  
+    Supposons que toutes les clauses d’une expression $E'_C$ soient satisfaites uniquement grâce aux $y_j$.  
+    Alors, à cause de la première clause, $y_1$ doit être Vrai. En propageant, on déduit que tous les $y_j$ ($1 \le j \le k-3$) sont à Vrai.  
+    Mais la dernière clause $(\neg y_{k-3} \lor a_{k-1} \lor a_k)$ serait alors insatisfaite, puisque $\neg y_{k-3}$ serait Faux.  
+    On en déduit que si $E'_C$ est satisfaite, alors au moins un des littéraux $a_i$ doit être Vrai.
+
+  \item Les réponses aux Questions 7 et 8 montrent que si $\varphi'$ est satisfiable, alors $\varphi$ l’est aussi.
+
+  \item Les Questions 3, 6 et 9 montrent que l’on a bien une réduction polynomiale
+    \[
+      \textsc{Sat} \le_P \textsc{3-Sat},
+    \]
+    c’est-à-dire qu’à toute instance $\varphi$ de \textsc{Sat} on peut associer en temps polynomial une instance $\varphi'$ de \textsc{3-Sat}
+    telle que $\varphi$ est satisfiable si et seulement si $\varphi'$ l’est.
+
+  \item La Question 1 indique que \textsc{3-Sat} est dans NP, et la Question 10 que \textsc{Sat} se réduit à \textsc{3-Sat}.  
+    Comme \textsc{Sat} est NP-complet, on en déduit que \textsc{3-Sat} est lui aussi NP-complet.
+
+  \item Pour limiter les clauses à exactement trois littéraux, traitons les cas particuliers :
+    \begin{itemize}
+      \item Si une clause $C$ a taille 1, elle fixe la valeur d’une variable $x_i$ ; on peut alors simplifier la formule en conséquence.
+      \item Si une clause $C$ a taille 2, par exemple $C = (a \lor b)$, on remplace dans $\varphi'$ par $C' = (a \lor b \lor b)$.  
+            Clairement, $C$ est satisfaite $\Leftrightarrow$ $C'$ l’est.
+    \end{itemize}
+    Ainsi, on adapte la réduction précédente pour obtenir uniquement des clauses de taille exactement 3, sans changer la validité de la preuve.
+
+  \item Pour tout $k \ge 3$, on peut réduire \textsc{k-Sat} vers \textsc{(k+1)-Sat} en transformant chaque clause
+    \[
+      C = (a_1 \lor a_2 \lor \dots \lor a_k)
+      \quad\text{en}\quad
+      C' = (a_1 \lor a_2 \lor \dots \lor a_k \lor a_k).
+    \]
+    Cette réduction se fait en temps polynomial, et $C$ est satisfaite $\Leftrightarrow$ $C'$ l’est.  
+    Comme \textsc{k-Sat} est NP-complet, on déduit par récurrence que \textsc{k-Sat} est NP-complet pour tout $k \ge 3$.
+
+  \item Une clause de taille 2, $C = (a \lor b)$, est équivalente à :
+    \[
+      (\neg a \Rightarrow b) \;\land\; (\neg b \Rightarrow a).
+    \]
+
+  \item Pour la formule
+    \[
+      \varphi = (\neg x_1 \lor x_2)
+      \land (\neg x_1 \lor \neg x_2)
+      \land (x_1 \lor \neg x_3)
+      \land (x_1 \lor x_3),
+    \]
+    on obtient les implications suivantes :
+    \begin{align*}
+      (\neg x_1 \lor x_2) &\Rightarrow (x_1 \Rightarrow x_2) \land (\neg x_2 \Rightarrow \neg x_1),\\
+      (\neg x_1 \lor \neg x_2) &\Rightarrow (x_1 \Rightarrow \neg x_2) \land (x_2 \Rightarrow \neg x_1),\\
+      (x_1 \lor \neg x_3) &\Rightarrow (\neg x_1 \Rightarrow \neg x_3) \land (x_3 \Rightarrow x_1),\\
+      (x_1 \lor x_3) &\Rightarrow (\neg x_1 \Rightarrow x_3) \land (\neg x_3 \Rightarrow x_1).
+    \end{align*}
+    Le graphe $G_\varphi$ des implications correspond à ces arcs (à une inversion près pour celui du bas !).
+
+    \begin{center}
+        \begin{tikzpicture}[x=20mm, y=10mm]
+          \draw (1,1) node[graph node, text width=8mm] (t1) {$x_1$};
+          \draw (2,1) node[graph node, text width=8mm] (t3) {$x_3$};
+          \draw (3,1) node[graph node, text width=8mm] (f2) {$\lnot x_2$};
+          \draw (1,0) node[graph node, text width=8mm] (t2) {$x_2$};
+          \draw (2,0) node[graph node, text width=8mm] (f3) {$\lnot x_3$};
+          \draw (3,0) node[graph node, text width=8mm] (f1) {$\lnot x_1$};
+
+          \draw[thick, -latex] (f1) to (t3);
+          \draw[thick, -latex] (f1) to (f3);
+          \draw[thick, -latex] (t3) to (t1);
+          \draw[thick, -latex] (f3) to (t1);
+          \draw[thick, -latex] (t1) to (t2);
+          \draw[thick, -latex] (t1) to[bend left] (f2);
+          \draw[thick, -latex] (t2) to[bend right] (f1);
+          \draw[thick, -latex] (f2) to (f1);
+
+        \end{tikzpicture}
+    \end{center}
+
+    
+  \item En observant $G_\varphi$, on constate :
+    \begin{itemize}
+      \item si $x_1 = \text{Vrai}$, alors $x_2 = \text{Faux}$, donc $x_1 = \text{Faux}$ ;
+      \item si $x_1 = \text{Faux}$, alors $x_3 = \text{Vrai}$, donc $x_1 = \text{Vrai}$.
+    \end{itemize}
+    Ainsi, $x_1$ ne peut être ni Vrai ni Faux : la formule $\varphi$ est donc insatisfiable.
+  
+  \end{question}
+\end{correction}
+
+\endgroup
+\endinput

@@ -1,0 +1,51 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Epressiveness of Turing machines
+% Exercise: Computable function 
+
+\begingroup
+
+\begin{exercice}[Calculabilité de la fonction \texttt{CaractereEn(u,i)}]\label{exo:turingmachines/expressiveness/at}
+
+  \SetKwFunction{CaractereEn}{CaractereEn}
+
+  \begin{question}
+  \item Donnez une machine de Turing qui prend en entrée un nombre entier $i$ écrit en binaire sur un ruban \textsc{i}
+    et un mot $u \in \Sigma^\star$ sur un ruban \textsc{u},
+    et écrit sur le ruban \textsc{c} le $i^{\text{e}}$ caractère de $u$ (on supposera $|u| \ge i$).
+  \end{question}
+
+  \begin{correction}
+    La principale difficulté est de traduire $i$ en unaire, pour pouvoir déplacer le tête de lecture sur $u$. Une façon de faire est par décrémentations successives de $i$.
+
+    \begin{algorithm}[H]
+      \Fun{$\CaractereEn(u,i)$}{
+        \While{$i\neq 0$}{
+          $i \leftarrow i-1$;\\
+          $u \leftarrow \&u[1]$; \tcp{$\textsc{u}:\smTMtransR{x}{x}$}
+        }
+        $c \leftarrow u[0]$; \tcp{$\textsc{u}:\smTMtransS{x}{x}, \textsc{c}:\smTMtransS{\blank}{x} $}
+      }    
+    \end{algorithm}
+
+    \begin{center}
+      \begin{tikzpicture}[turingMachine, x=30mm]
+        \state[initial left] (0) at (0,0) {$0$}; 
+        \state               (1) at (1,0) {$1$}; 
+        \state[accepting]    (2) at (2,0) {$2$}; 
+
+        \path (0) edge[loop above] node       {\smAlign{\smTMtransR[\textsc{i}]{0}{0}\smTMtransR[\textsc{i}]{1}{1}}} (0);
+        \path (1) edge[loop above] node       {\smTMtransL[\textsc{i}]{0}{1}}                                        (1);
+        \path (0) edge[bend left]  node       {\smTMtransL[\textsc{i}]{\blank}{\blank}}                              (1);
+        \path (1) edge[bend left]  node       {\smGroup{\smTMtransR[\textsc{i}]{1}{0}\smTMtransR[\textsc{u}]{x}{x}}} (0);
+        \path (1) edge             node[swap] {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransS[\textsc{u}]{x}{x}\smTMtransS[\textsc{c}]{\blank}{x}}} (2);
+      \end{tikzpicture}
+      $\forall x\in \Sigma$
+    \end{center}
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

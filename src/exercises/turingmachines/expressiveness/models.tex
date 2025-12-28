@@ -1,0 +1,105 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Turing machines
+% Section: Epressiveness of Turing machines
+% Exercise: Models of Turing machines
+
+\begingroup
+
+\begin{exercice}[Modèles de machines de Turing]\label{exo:turingmachines/expressiveness/models}
+
+  Le but de cet exercice est de comparer deux modèles de machines de Turing :
+  \begin{itemize}
+    \item le modèle strict, à un seul ruban, et qui ne permet que de lire et d'écrire dans les cases du ruban ; 
+    \item et le modèle étendu vu en cours, à plusieurs rubans, qui autorise en plus l'insertion et la suppression de cases sur les rubans.
+  \end{itemize}
+
+  \begin{question}
+  \item Construire une machine du modèle étendu qui décide le langage $\{ww^\textsc{r} \mid w \in \{a, b\}^\star\}$.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(0), x=30mm]
+      \state[initial]   (0) at (0,0) {$0$}; 
+      \state            (1) at (1,0) {$1$}; 
+      \state            (2) at (2,0) {$2$}; 
+      \state[accepting] (3) at (3,0) {$3$}; 
+ 
+      \path (0) edge[loop above]  node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransR[\textsc{a}]{\blank}{x}}} (0);
+      \path (0) edge              node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransL[\textsc{a}]{\blank}{\blank}}} (1);
+      \path (1) edge[loop above]  node {\smTMtransL[\textsc{i}]{x}{x}}           (1);
+      \path (1) edge              node {\smTMtransR[\textsc{i}]{\blank}{\blank}}      (2);
+      \path (2) edge[loop above]  node {\smGroup{\smTMtransR[\textsc{i}]{x}{x}\smTMtransL[\textsc{a}]{x}{x}}} (2);
+      \path (2) edge              node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransR[\textsc{a}]{\blank}{\blank}}} (3);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item Construire une machine du modèle strict qui décide le langage $\{ww^\textsc{r} \mid w \in \{a, b\}^\star\}$.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(1), y=12mm]
+      \state[initial above] (0) at (1,1) {$0$}; 
+      \state                (1) at (2,2) {$1$}; 
+      \state                (2) at (3,2) {$2$}; 
+      \state                (3) at (2,0) {$3$}; 
+      \state                (4) at (3,0) {$4$}; 
+      \state                (5) at (4,1) {$5$}; 
+      \state[accepting]     (6) at (0,1) {$6$}; 
+
+      \path (1) edge[loop left]  node               {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}} (1);
+      \path (3) edge[loop left]  node               {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}} (3);
+      \path (5) edge[loop right] node               {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}}} (5);
+      \path (0) edge             node[sloped, swap] {\smTMtransR{a}{\blank}}                       (1);
+      \path (1) edge             node[sloped]       {\smTMtransL{\blank}{\blank}}                  (2);
+      \path (2) edge             node[sloped, swap] {\smTMtransL{a}{\blank}}                       (5);
+      \path (0) edge             node[sloped]       {\smTMtransR{b}{\blank}}                       (3);
+      \path (3) edge             node[sloped]       {\smTMtransL{\blank}{\blank}}                  (4);
+      \path (4) edge             node[sloped]       {\smTMtransL{b}{\blank}}                       (5);
+      \path (5) edge             node[sloped]       {\smTMtransR{\blank}{\blank}}                  (0);
+      \path (0) edge             node[sloped]       {\smTMtransR{\blank}{\blank}}                  (6);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item Construire une machine du modèle étendu qui décide le langage $\{a^{n^2} \mid n\in \mathbb{N} \}$.
+    
+    \emph{Remarque :} on rappelle que $\sum_{i=0}^n (2i+1) = n^2$.
+  \end{question}
+  \begin{correction}
+    \begin{tikzpicture}[turingMachine, baseline=(0), x=40mm]
+      \state                (1) at (0,0) {$1$}; 
+      \state[initial above] (0) at (1,0) {$0$}; 
+      \state[accepting]     (2) at (2,0) {$2$}; 
+
+      \path (0) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransR[\textsc{n}]{1}{1}}}                     (0);
+      \path (1) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransL[\textsc{n}]{1}{1}}}                     (1);
+      \path (0) edge[bend left]  node {\smGroup{\smTMtransS[\textsc{i}]{1}{1}\smTMtransS[\textsc{n}]{\blank}{1}}}                (1);
+      \path (1) edge             node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransR[\textsc{n}]{\blank}{\blank}}}           (0);
+      \path (0) edge             node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransL[\textsc{n}]{\blank}{\blank}}} (2);
+    \end{tikzpicture}
+  \end{correction}
+
+  \begin{question}
+  \item Construire une machine du modèle étendu qui décide le langage de Dyck : $\mathcal{L}(S \rightarrow (S) \mid SS \mid \varepsilon)$.
+  \end{question}
+  \begin{correction}
+    \vspace{-2mm}
+    \begin{tikzpicture}[turingMachine, baseline=(0), x=30mm]
+      \state[initial]   (0) at (0,0) {$0$}; 
+      \state            (1) at (1,0) {$1$}; 
+      \state            (2) at (2,0) {$2$}; 
+      \state[accepting] (3) at (3,0) {$3$}; 
+
+      \path (0) edge             node {\smTMtransR[\textsc{c}]{x}{x}}                                                            (1);
+      \path (1) edge[loop above] node {\smGroup{\smTMtransR[\textsc{i}]{(}{(}\smTMtransR[\textsc{c}]{\blank}{\blank}}}           (1);
+      \path (1) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{)}{)}\smTMtransL[\textsc{c}]{\blank}{\blank}}}           (1);
+      \path (1) edge             node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransL[\textsc{c}]{\blank}{\blank}}} (2);
+      \path (2) edge             node {\smTMtransS[\textsc{c}]{x}{x}}                                                            (3);
+    \end{tikzpicture}
+    \vspace{-2mm}
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

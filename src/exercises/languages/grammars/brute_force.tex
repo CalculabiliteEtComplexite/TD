@@ -1,0 +1,64 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Contextual languages
+% Exercise: Brute force ascending algorithm
+
+\begingroup
+
+\begin{exercice}[Recherche ascendante par force brute]\label{exo:/languages/grammars/brute_force}
+
+  Soit la grammaire contextuelle suivante :
+
+  $$G \eqdef \left\langle\{a, b, c\}, \{S, A, B, C\}, S,
+  \left\{\begin{array}{lll}
+  S   &\rightarrow& Abc \mid  ABSc\\
+  BA  &\rightarrow& CA\\
+  CA  &\rightarrow& CB\\
+  CB  &\rightarrow& AB\\
+  A  &\rightarrow& a\\
+  Bb  &\rightarrow& bb\\
+  \end{array}\right\} \right\rangle$$
+  
+  \begin{question}
+  \item Trouver 2 mots appartenant au langage et 2 mots n'appartenant pas au langage.
+  \end{question}
+  \begin{correction}
+    Des exemples de
+    mots du langage~: $abc$, $aabbcc$, $aaabbbccc$, etc. Des exemples de mots
+    qui ne sont pas dans le langage (pour des raisons évidentes)~: tous les mots sans $c$
+    ou sans le facteur $ab$. 
+  \end{correction}
+  
+  \begin{question}
+  \item Utiliser l'algorithme de recherche ascendante par force brute pour
+    déterminer si $cb$, $abbc$, $abc$ et $aabbcc$ appartiennent au langage.
+  \end{question}
+  \begin{correction}
+    Pour la recherche ascendante par force brute
+    (dans les réécritures inverses $\leftarrow$ 
+    on ne garde que les nouveaux mots)~:
+    \begin{itemize}
+    \item $\{cb\} \leftarrow \emptyset \Rightarrow$ $cb$ n'appartient pas au langage.
+    \item $\{abbc\} \leftarrow \{Abbc, aBbc\} \leftarrow
+      \{ABbc\} \leftarrow \{CBbc\} \leftarrow \{CAbc\}
+      \leftarrow \{BAbc, CS\} \leftarrow \{BS\} \leftarrow \emptyset
+      \Rightarrow$ $abbc$ n'appartient pas au langage.
+    \item $\{abc\} \leftarrow \{Abc, S\} \Rightarrow$ $abc$ appartient langage.
+    \item Très long. On peut donner une dérivation (inverse) du mot~:
+      $aabbcc \leftarrow Aabbcc \leftarrow AAbbcc \leftarrow AABbcc 
+      \leftarrow ACBbcc \leftarrow ACAbcc \leftarrow ABAbcc \leftarrow ABSc \leftarrow S\Rightarrow$  $aabbcc$ appartient au langage.
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Déterminer le langage associé à la grammaire.
+  \end{question}
+  \begin{correction}
+    Le langage est $\{a^nb^nc^n \mid  n > 0\}$.
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput

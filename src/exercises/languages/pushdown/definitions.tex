@@ -1,0 +1,151 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Pushdown automata
+% Exercise: Strings recognized by pushdown automata
+
+\begingroup
+
+\begin{exercice}[Chaînes reconnues par un automate à pile]\label{exo:languages/pushdown/definitions}
+
+  Soit $A$ l'automate à pile : 
+  \begin{tikzpicture}[pushdown, baseline=(0.base)]
+    \state[initial above, accepting] (0) at (0,0) {$0$}; 
+    \state                     (1) at (1,0) {$1$};
+    
+    \path (0) edge[loop left]  node {\smPAtrans{a}{\varepsilon}{A}}                     (0);
+    \path (1) edge[loop right] node {\smPAtrans{b}{A}{\varepsilon}}                     (1);
+    \path (0) edge[bend left]  node {\smPAtrans{\varepsilon}{\varepsilon}{\varepsilon}} (1);
+    \path (1) edge             node {\smPAtrans{\varepsilon}{\diamond}{\varepsilon}}    (0);
+  \end{tikzpicture}
+
+  On rappelle les trois critères d'acceptation de $A$ : 
+  \begin{itemize}
+  \item $\mathcal{L}_F(A)$ est le langage reconnu par état accepteur.
+  \item $\mathcal{L}_\varepsilon(A)$ est le langage reconnu par pile vide.
+  \item $\mathcal{L}(A)$ est le langage reconnu par état accepteur et pile vide.
+  \end{itemize}
+
+  \begin{question}
+  \item   Donner le graphe de la relation d'action entre toutes les configurations accessibles
+    dans la reconnaissance des mots $ab$, $aba$ et $abab$ et en déduire s'ils sont acceptés
+    par les trois critères.
+  \end{question}
+
+  \begin{correction}
+    \begin{itemize}
+    \item $\langle 0, ab, \diamond \rangle \leadsto^\star \langle 0, \varepsilon, \varepsilon \rangle$, donc $ab$ est accepté par les trois critères. 
+      \begin{center}
+        \begin{tikzpicture}[x=24mm, y=8mm]
+          \node (0)  at (0,1) {$\langle 0, ab, \diamond    \rangle$}; 
+          \node (1)  at (1,0) {$\langle 1, ab, \diamond    \rangle$};
+          \node (2)  at (2,0) {$\langle 0, ab, \varepsilon \rangle$};
+          \node (3)  at (3,0) {$\langle 0, b, A            \rangle$};
+          \node (4)  at (4,0) {$\langle 1, b, A            \rangle$};
+          \node (5)  at (1,2) {$\langle 0, b, A\diamond    \rangle$}; 
+          \node (6)  at (2,2) {$\langle 1, b, A\diamond    \rangle$};
+          \node (7)  at (3,2) {$\langle 1, \varepsilon, \diamond    \rangle$};
+          \node (8)  at (4,2) {$\langle 0, \varepsilon, \varepsilon \rangle$};
+          \node (9)  at (5,1) {$\langle 1, \varepsilon, \varepsilon \rangle$};
+          \node (10) at (3,1) {$\langle 1, ab, \varepsilon \rangle$};
+
+          \path (0) edge[leadsto] (1);
+          \path (0) edge[leadsto] (5);
+          \path (1) edge[leadsto] (2);
+          \path (2) edge[leadsto] (3);
+          \path (3) edge[leadsto] (4);
+          \path (4) edge[leadsto] (9);
+          \path (5) edge[leadsto] (6);
+          \path (6) edge[leadsto] (7);
+          \path (7) edge[leadsto] (8);
+          \path (8) edge[leadsto] (9);
+          \path (2) edge[leadsto] (10);
+        \end{tikzpicture}
+      \end{center}
+
+    \item $\langle 0, aba, \diamond \rangle \leadsto^\star \langle 0, \varepsilon, A \rangle$, donc $aba \in \mathcal{L}_F(A)$.
+      $\langle 0, aba, \diamond \rangle \not\leadsto^\star \langle \_, \varepsilon, \varepsilon \rangle$, donc $abab \notin \mathcal{L}(A) \cup \mathcal{L}_\varepsilon(A)$
+      \begin{center}
+        \begin{tikzpicture}[x=24mm, y=8mm]
+          \node (0)  at (0,1) {$\langle 0, aba, \diamond    \rangle$}; 
+          \node (1)  at (1,0) {$\langle 1, aba, \diamond    \rangle$};
+          \node (2)  at (2,0) {$\langle 0, aba, \varepsilon \rangle$};
+          \node (3)  at (3,0) {$\langle 0, ba, A            \rangle$};
+          \node (4)  at (4,0) {$\langle 1, ba, A            \rangle$};
+          \node (5)  at (1,2) {$\langle 0, ba, A\diamond    \rangle$}; 
+          \node (6)  at (2,2) {$\langle 1, ba, A\diamond    \rangle$};
+          \node (7)  at (3,2) {$\langle 1, a, \diamond    \rangle$};
+          \node (8)  at (4,2) {$\langle 0, a, \varepsilon \rangle$};
+          \node (9)  at (5,1) {$\langle 1, a, \varepsilon \rangle$};
+          \node (10) at (3,1) {$\langle 1, aba, \varepsilon \rangle$};
+          \node (11) at (3,3) {$\langle 0, \varepsilon, A \rangle$};
+          \node (12) at (2,3) {$\langle 1, \varepsilon, A \rangle$};
+
+          \path (0)  edge[leadsto] (1);
+          \path (0)  edge[leadsto] (5);
+          \path (1)  edge[leadsto] (2);
+          \path (2)  edge[leadsto] (3);
+          \path (3)  edge[leadsto] (4);
+          \path (4)  edge[leadsto] (9);
+          \path (5)  edge[leadsto] (6);
+          \path (6)  edge[leadsto] (7);
+          \path (7)  edge[leadsto] (8);
+          \path (8)  edge[leadsto] (9);
+          \path (2)  edge[leadsto] (10);
+          \path (8)  edge[leadsto] (11);
+          \path (11) edge[leadsto] (12);
+        \end{tikzpicture}
+      \end{center}
+
+    \item
+      $\langle 0, abab, \diamond \rangle \leadsto^\star \langle 1, \varepsilon, \varepsilon \rangle$, donc $abab \notin \mathcal{L}_\varepsilon(A)$.
+      $\langle 0, aba, \diamond \rangle \not\leadsto^\star \langle 0, \varepsilon, \_ \rangle$ donc $abab \notin \mathcal{L}(A) \cup \mathcal{L}_F(A)$. 
+      \begin{center}
+        \begin{tikzpicture}[x=24mm, y=8mm]
+          \node (0)  at (0,1) {$\langle 0, abab, \diamond    \rangle$}; 
+          \node (1)  at (1,0) {$\langle 1, abab, \diamond    \rangle$};
+          \node (2)  at (2,0) {$\langle 0, abab, \varepsilon \rangle$};
+          \node (3)  at (3,0) {$\langle 0, bab, A            \rangle$};
+          \node (4)  at (4,0) {$\langle 1, bab, A            \rangle$};
+          \node (5)  at (1,2) {$\langle 0, bab, A\diamond    \rangle$}; 
+          \node (6)  at (2,2) {$\langle 1, bab, A\diamond    \rangle$};
+          \node (7)  at (3,2) {$\langle 1, ab, \diamond    \rangle$};
+          \node (8)  at (4,2) {$\langle 0, ab, \varepsilon \rangle$};
+          \node (9)  at (5,1) {$\langle 1, ab, \varepsilon \rangle$};
+          \node (10) at (3,1) {$\langle 1, abab, \varepsilon \rangle$};
+          \node (11) at (3,3) {$\langle 0, b, A \rangle$};
+          \node (12) at (2,3) {$\langle 1, b, A \rangle$};
+          \node (13) at (1,3) {$\langle 1, \varepsilon, \varepsilon \rangle$};
+
+          \path (0)  edge[leadsto] (1);
+          \path (0)  edge[leadsto] (5);
+          \path (1)  edge[leadsto] (2);
+          \path (2)  edge[leadsto] (3);
+          \path (3)  edge[leadsto] (4);
+          \path (4)  edge[leadsto] (9);
+          \path (5)  edge[leadsto] (6);
+          \path (6)  edge[leadsto] (7);
+          \path (7)  edge[leadsto] (8);
+          \path (8)  edge[leadsto] (9);
+          \path (2)  edge[leadsto] (10);
+          \path (8)  edge[leadsto] (11);
+          \path (11) edge[leadsto] (12);
+          \path (12) edge[leadsto] (13);
+        \end{tikzpicture}
+      \end{center}
+    \end{itemize}
+  \end{correction}
+  
+  \begin{question}
+  \item Décrire les langages $\mathcal{L}_F(A)$, $\mathcal{L}_\varepsilon(A)$ et $\mathcal{L}(A)$.
+  \end{question}
+  \begin{correction}
+    Le langage reconnu par état accepteur est $\mathcal{L}_{F}(A) = \{a^m b^m a^n \mid m, n \in \mathbb{N}\}$.
+    Le langage reconnu par pile vide est $\mathcal{L}_{\varepsilon}(A) = \{a^m b^m a^n b^n \mid m, n \in \mathbb{N}\}$.
+    Le langage reconnu par les deux conditions est $\mathcal{L}(A) = \{a^n b^n \mid n \in \mathbb{N}\}$.
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput

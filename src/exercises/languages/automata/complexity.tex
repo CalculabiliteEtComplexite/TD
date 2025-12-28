@@ -1,0 +1,96 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Finite state automata
+% Exercise: Complexity of determinisation
+
+\begingroup
+
+\begin{exercice}[Complexité de la déterminisation]\label{exo:languages/automata/complexity}
+
+  Le but de cet exercice est de montrer que, pour certains langages,
+  le nombre d'états d'un automate fini déterministe reconnaissant un langage
+  peut être exponentiellement plus grand que le nombre d'états
+  d'un automate fini non déterministe reconnaissant ce même langage.
+
+  Soit $n>0$ un entier, et soit $\Sigma = \{a, b\}$.
+  On considère le langage $L_n = \{u a v \mid u, v \in \Sigma^\star \text{ et } |v| = n-1 \}$.
+  Autrement dit, $w \in L_n$ si, et seulement si, le $n^{\text{e}}$ symbole de $w$ en partant de la fin est un $a$.
+  
+  \begin{question}
+  \item Construire un automate fini non déterministe $A_n$ à $n+1$ états qui reconnaît le langage $L_n$.
+  \end{question}
+  \begin{correction}
+    On pose $A = \langle \Sigma = \{a, b\}, \{0, ..., n\}, \{0\}, \{n\}, \rightarrow \rangle$ avec :
+    $$\rightarrow = \{\langle 0, a, 1\rangle, \langle 0, a, 0\rangle, \langle 0, b, 0\rangle\} \cup \{\langle k, a, k+1\rangle, \langle k, b, k+1\rangle \mid 0 < k < n \}$$ 
+  \end{correction}
+
+  \begin{question}
+  \item Appliquer la construction des sous-ensembles pour déterminiser l'automate $A_3$. 
+  \end{question}
+  \begin{correction}
+    \begin{itemize}
+    \item Automate $A_3$ :
+      \begin{tikzpicture}[automaton, size=20mm, baseline=(0.base)]
+        \state[initial]   (0) at (0,0) {$0$}; 
+        \state            (1) at (1,0) {$1$}; 
+        \state            (2) at (2,0) {$2$}; 
+        \state[accepting] (3) at (3,0) {$3$}; 
+
+        \path (0) edge[loop above] node {$a, b$} (0);
+        \path (0) edge             node {$a$} (1);
+        \path (1) edge             node {$a, b$} (2);
+        \path (2) edge             node {$a, b$} (3);
+      \end{tikzpicture}
+    \item Automate $A'_3$ :
+      \begin{tikzpicture}[automaton, y=20mm, x=20mm, baseline=(bbb.base)]
+        \state[rectangle, initial  ]   (bbb) at (0,1) {$bbb$}; 
+        \state[rectangle           ]   (bba) at (1,1) {$bba$}; 
+        \state[rectangle           ]   (baa) at (2,1) {$baa$}; 
+        \state[rectangle, accepting]   (aaa) at (3,1) {$aaa$}; 
+        \state[rectangle, accepting]   (abb) at (0,0) {$abb$}; 
+        \state[rectangle           ]   (bab) at (1,0) {$bab$}; 
+        \state[rectangle, accepting]   (aba) at (2,0) {$aba$}; 
+        \state[rectangle, accepting]   (aab) at (3,0) {$aab$}; 
+
+        \path (bbb) edge              node  {$a$} (bba);
+        \path (bba) edge              node  {$a$} (baa);
+        \path (baa) edge              node  {$a$} (aaa);
+        \path (aaa) edge[loop above]  node  {$a$} (aaa);
+        \path (abb) edge              node  {$a$} (bba);
+        \path (bab) edge[bend left]   node  {$a$} (aba);
+        \path (aba) edge              node  {$a$} (baa);
+        \path (aab) edge              node  {$a$} (aba);
+        
+        \path (bbb) edge[loop above]  node  {$b$} (bbb);
+        \path (bba) edge              node  {$b$} (bab);
+        \path (baa) edge              node  {$b$} (aab);
+        \path (aaa) edge              node  {$b$} (aab);
+        \path (abb) edge              node  {$b$} (bbb);
+        \path (bab) edge              node  {$b$} (abb);
+        \path (aba) edge[bend left]   node  {$b$} (bab);
+        \path (aab) edge[bend left]   node  {$b$} (abb);
+      \end{tikzpicture}
+    \end{itemize}
+  \end{correction}
+
+  \begin{question}
+  \item Montrer que l'automate déterministe obtenu est minimal.
+  \end{question}
+  \begin{correction}
+    Comme l'automate est émondé, la méthode de Moore donne l'automate minimal. Or, la méthode de Moore laisse l'automate inchangé.
+    On en déduit que l'automate est déjà minimal.
+  \end{correction}
+  
+  \begin{question}
+  \item En déduire le nombre d'états nécessaires pour reconnaître $L_n$ par un automate déterministe.
+  \end{question}
+  \begin{correction}
+    L'automate a $2^n$ états. 
+  \end{correction}
+  
+\end{exercice}
+
+\endgroup
+\endinput
+

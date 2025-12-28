@@ -1,0 +1,144 @@
+% SPDX-License-Identifier: CC-BY-SA-4.0
+% Author: Matthieu Perrin
+% Part: Languages
+% Section: Chomsky hierarchy
+% Exercise: Identification of grammar types
+
+\begingroup
+
+\begin{exercice}[Types de grammaires et de langages]\label{exo:languages/chomsky/types}
+
+  Pour chacune des grammaires suivantes, répondre aux questions suivantes :
+
+  \begin{enumerate}
+  \item Donner deux mots appartenant au langage, avec pour chacun une dérivation complète,
+    ainsi que deux mots n'appartenant pas au langage.
+  \item Indiquer à quels types de la hiérarchie de Chomsky la \emph{grammaire} appartient.
+  \item Décrire, sous forme ensembliste, le \emph{langage} engendré par la grammaire.
+  \item Le langage admet-il une grammaire d'un type \emph{plus restrictif} que celle donnée ?
+  \end{enumerate}
+
+  \begin{correction}
+    Le type 0 est toujours facile à vérifier : il suffit de s'assurer que c'est bien une grammaire
+    (bon nombre d'éléments dans le tuple, bon types d'éléments, et au moins un non-terminal à gauche de chaque règle).
+    En général, ce sera toujours le cas.
+
+    Ensuite, le type 2 est très simple à vérifier également :
+    il faut vérifier que le membre gauche de chaque règle est un et un seul non-terminal.
+
+    Si la grammaire n'est pas de type 2, elle n'est pas de type 3.
+    Sinon, on doit vérifier qu'elle est linéaire à gauche ou à droite,
+    et que chaque membre droit contient au plus un terminal. 
+
+    Si la grammaire est de type 2, il suffit de vérifier les membres droits vides pour vérifier si elle est de type 1.
+    Sinon, il faut identifier les contextes gauches et droits de chaque règle. 
+  \end{correction}
+
+  \begin{question}
+  \item $G_1 \eqdef \left\langle \{a, b\}, \{S, T\}, S,
+    \left\{\begin{array}{rcl}
+    S &\rightarrow& a T \mid b\\
+    T &\rightarrow& S a
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item Mots dans le langage :
+      $S \vdash b$ et
+      $S \vdash aT \vdash aSa \vdash ab a$.\\
+      Mots \emph{pas} dans le langage : $a$, $ab$, $baa$, etc.
+    \item
+      Les côtés gauches sont d'un seul non-terminal, donc grammaire de type~2.  
+      La règle $S \to aT$ est régulière à droite, et la règle $T \to Sa$ est régulière à gauche.
+      Les grammaires de type 3 n'autorisent pas à malanger les deux, donc pas de type~3.
+      Il n'y a pas de $\varepsilon$ à droite des règles, donc type $1$. 
+      La grammaire est donc de types 2,1,0.
+    \item $L(G_1) = \{ a^n b a^n \mid n \ge 0 \}$.
+    \item
+      $L(G_1)$ n'est pas rationnel (lemme de l'étoile) donc il n'existe pas de grammaire de type~3 pour ce langage.
+      Le langage est donc de type $2$. 
+    \end{enumerate}
+  \end{correction}
+
+  \begin{question}
+  \item $G_2 \eqdef \left\langle \{a, b\}, \{S, T\}, S,
+    \left\{\begin{array}{rcl}
+    S &\rightarrow& a S \mid T\\
+    a T &\rightarrow& a T a \\
+    T &\rightarrow& b
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item Mots dans le langage :
+      $S \vdash T \vdash b$ et 
+      $S \vdash aS \vdash aT \vdash aTa \vdash ba a$.
+      Mots hors du langage : $\varepsilon$, $a$, $bb$, $ab$, etc.  
+    \item
+      La règle $aT \to aTa$ a un côté gauche de longueur $2$ : la grammaire n'est pas de type~2, donc pas de type~3.  
+      La grammaire est bien de type 1, et donc aussi 0. 
+    \item $L(G_2) = \{\, a^p b a^q \mid p,q \ge 0 \,\} = a^\star b a^\star$.
+    \item $L(G_2)$ est rationnel (expression régulière $a^\star b a^\star$), donc il existe une grammaire de type~3
+      pour ce langage (par exemple $S \to aS \mid bA$, $A \to aA \mid \varepsilon$).  
+    \end{enumerate}
+  \end{correction}
+
+  \begin{question}
+  \item $G_3 \eqdef \left\langle \{a, b, c\}, \{S, A, B, C\}, S,
+    \left\{\begin{array}{rcl}
+    S   &\rightarrow& \varepsilon \mid  A \\
+    A   &\rightarrow& aA \mid  B \\
+    B   &\rightarrow& bB \mid  C \\
+    C   &\rightarrow& cC \mid  c\\
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item Mots dans le langage :
+      $S \vdash A \vdash aA \vdash B \vdash bB \vdash C \vdash c$ et
+      $S \vdash A \vdash aA \vdash aA \vdash B \vdash C \vdash cC \vdash cc$
+      Mots hors du langage : $a$, $b$, $ac$, $bc$, $c^0=\varepsilon$ avec des $b$ ou $c$ mal placés, etc.
+    \item Toutes les productions sont de la forme $X \to aX$, $X \to Y$, ou $X \to a$,
+      avec un unique non-terminal en tête, éventuellement remplacé par un terminal
+      ou un terminal suivi d'un non-terminal en fin de mot, plus $S \to \varepsilon$.  
+      C'est une grammaire linéaire droite, donc de type~3 (et donc aussi de types 2,1,0).
+    \item $L(G_3) = \varepsilon \mid a^\star b^\star c^+$.
+    \item Le langage est rationnel, donc de type minimal 3.  
+    \end{enumerate}
+  \end{correction}
+
+  \begin{question}
+  \item $G_4 \eqdef \left\langle \{a, b\}, \{S\}, S,
+    \left\{\begin{array}{rcl}
+    S   &\rightarrow& \varepsilon \mid  aSaS\mid  bSaS\\
+    SaS &\rightarrow& SbS 
+    \end{array}\right\}  \right\rangle$
+  \end{question}
+  \begin{correction}
+    \begin{enumerate}
+    \item Mots dans le langage :
+      $S \vdash \varepsilon$,
+      $S \vdash aSaS \vdash a S a S \vdash a a S \vdash aa$ et
+      $S \vdash aSaS \vdash aSaS aS \vdash aSbS aS \vdash abS aS \vdash ab a S \vdash abaS \vdash ab a b S \vdash abab$.
+      Mots hors du langage : $a$, $b$, $aba$, $abb$, etc.  
+    \item La règle $SaS \to SbS$ a un côté gauche de longueur $3$,
+      donc la grammaire n'est pas de type~2.  
+      De plus, la règle $S \to \varepsilon$ est contractante et $S$ apparaît à
+      droite d'autres règles, donc la grammaire n'est pas de type~1.  
+      La grammaire est de type 0 uniquement.
+    \item $L(G_4) = \left((a \mid b)^2\right)^\star$.
+      
+      Intuition : chaque application de $S \to aSaS$ ou $S \to bSaS$ ajoute deux lettres
+      terminales après que les deux $S$ restants auront dérivé en mots terminaux,
+      et la règle $SaS \to SbS$ ne change pas la longueur du mot (elle transforme un $a$ en $b$ en position centrale).  
+      On en déduit que tout mot dérivé a une longueur paire.  
+      Réciproquement, on peut construire par récurrence tout mot de longueur paire en choisissant à chaque
+      étape $aSaS$ ou $bSaS$ puis en remplaçant certains $SaS$ par $SbS$ pour ajuster les lettres.
+    \item Le langage est rationnel, donc il admet donc une grammaire de type~3.  
+    \end{enumerate}
+  \end{correction}
+
+\end{exercice}
+
+\endgroup
+\endinput
