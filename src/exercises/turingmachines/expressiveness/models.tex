@@ -63,19 +63,21 @@
   \begin{question}
   \item Construire une machine du modèle étendu qui décide le langage $\{a^{n^2} \mid n\in \mathbb{N} \}$.
     
-    \emph{Remarque :} on rappelle que $\sum_{i=0}^n (2i+1) = n^2$.
+    \emph{Remarque :} on rappelle que $\sum_{k=0}^n (2k+1) = (n+1)^2$.
   \end{question}
   \begin{correction}
     \begin{tikzpicture}[turingMachine, baseline=(0), x=40mm]
-      \state                (1) at (0,0) {$1$}; 
-      \state[initial above] (0) at (1,0) {$0$}; 
-      \state[accepting]     (2) at (2,0) {$2$}; 
+      \state                (2) at (0,0) {$2$}; 
+      \state                (1) at (1,0) {$1$}; 
+      \state[initial above] (0) at (2,0) {$0$}; 
+      \state[accepting]     (3) at (3,0) {$3$}; 
 
-      \path (0) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransR[\textsc{n}]{1}{1}}}                     (0);
-      \path (1) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransL[\textsc{n}]{1}{1}}}                     (1);
-      \path (0) edge[bend left]  node {\smGroup{\smTMtransS[\textsc{i}]{1}{1}\smTMtransS[\textsc{n}]{\blank}{1}}}                (1);
-      \path (1) edge             node {\smGroup{\smTMtransR[\textsc{i}]{1}{1}\smTMtransR[\textsc{n}]{\blank}{\blank}}}           (0);
-      \path (0) edge             node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransL[\textsc{n}]{\blank}{\blank}}} (2);
+      \path (1) edge[loop below]   node {\smGroup{\smTMtransR[\textsc{i}]{a}{a}\smTMtransR[\textsc{k}]{1}{1}}} (1);
+      \path (2) edge[loop below]   node {\smGroup{\smTMtransR[\textsc{i}]{a}{a}\smTMtransL[\textsc{k}]{1}{1}}} (2);
+      \path (0) edge               node {\smTMtransR[\textsc{i}]{a}{a}}                                        (1);
+      \path (1) edge               node {\smTMtransL[\textsc{k}]{\blank}{\blank}}                              (2);
+      \path (2) edge[bend left=15] node {\smTMtransS[\textsc{k}]{\blank}{1}}                                   (0);
+      \path (0) edge               node {\smTMtransL[\textsc{i}]{\blank}{\blank}}                              (3);
     \end{tikzpicture}
   \end{correction}
 

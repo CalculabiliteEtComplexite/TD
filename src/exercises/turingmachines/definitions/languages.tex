@@ -15,25 +15,34 @@
   \end{question}
   \begin{correction}
     \begin{tikzpicture}[turingMachine, baseline=(0)]
-      \state                (0) at (0,0) {$0$}; 
-      \state[initial above] (1) at (1,0) {$1$}; 
-      \state                (2) at (2,0) {$2$}; 
+      \state[initial above] (0) at (2,1) {$0$}; 
+      \state                (1) at (3,2) {$1$}; 
+      \state                (2) at (4,2) {$2$}; 
       \state                (3) at (3,0) {$3$}; 
-      \state[accepting]     (4) at (4,0) {$4$}; 
+      \state                (4) at (4,0) {$4$}; 
+      \state                (5) at (5,1) {$5$}; 
+      \state                (6) at (1,1) {$6$}; 
+      \state[accepting]     (7) at (0,1) {$7$}; 
 
-      \path (0) edge[bend left]  node {\smTMtransR{\blank}{\blank}} (1);
-      \path (1) edge[bend left]  node {\smTMtransL{\blank}{\blank}} (0);
-      \path (2) edge[bend left]  node {\smTMtransR{a}{a}} (1);
-      \path (1) edge[bend left]  node {\smTMtransR{a}{A}} (2);
-      \path (2) edge             node {\smTMtransL{\blank}{\blank}} (3);
-      \path (3) edge             node {\smTMtransR{\blank}{\blank}} (4);
-      \path (0) edge[loop left]  node {\smAlign{\smTMtransL{a}{a}\smTMtransL{A}{A}}} (0);
-      \path (1) edge[loop below] node {\smTMtransR{A}{A}} (1);
-      \path (2) edge[loop below] node {\smTMtransR{A}{A}} (2);
-      \path (3) edge[loop below] node {\smTMtransL{A}{A}} (3);
+      \path (0) edge  node       {\smTMtransR{a}{\blank}}      (1);
+      \path (1) edge  node       {\smTMtransR{c}{c}}           (2);
+      \path (2) edge  node       {\smTMtransL{a}{X}}           (5);
+      \path (0) edge  node[swap] {\smTMtransR{b}{\blank}}      (3);
+      \path (3) edge  node[swap] {\smTMtransR{c}{c}}           (4);
+      \path (4) edge  node[swap] {\smTMtransL{b}{X}}           (5);
+      \path (5) edge  node[swap] {\smTMtransR{\blank}{\blank}} (0);
+      \path (0) edge  node[swap] {\smTMtransR{c}{c}}           (6);
+      \path (6) edge  node[swap] {\smTMtransL{\blank}{\blank}} (7);
+
+      \path (1) edge[loop above] node {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}}                                   (1);
+      \path (2) edge[loop above] node {\smTMtransR{X}{X}}                                                              (2);
+      \path (3) edge[loop below] node {\smAlign{\smTMtransR{a}{a}\smTMtransR{b}{b}}}                                   (3);
+      \path (4) edge[loop below] node {\smTMtransR{X}{X}}                                                              (4);
+      \path (5) edge[loop right] node {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}\smTMtransL{c}{c}\smTMtransL{X}{X}}} (5);
+      \path (6) edge[loop above] node {\smTMtransR{X}{X}}                                                              (6);
+
     \end{tikzpicture}
   \end{correction}
-
   
   \begin{question}
   \item Construire une machine de Turing déterministe qui génère le langage $\{a^n b^n a^n \mid n \ge 0\}$.
