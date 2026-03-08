@@ -17,16 +17,16 @@
       \state            (3) at (6,0) {$3$};
       \state[accepting] (4) at (6,1) {$4$};
       
-      \path (0) edge             node[sloped] {\smTMtransR{a}{c}} (1);
-      \path (1) edge[loop below] node         {\smAlign{\smTMtransR{a}{a}\smTMtransR{c}{c}}} (1);
-      \path (1) edge             node         {\smTMtransL{b}{c}} (2);
-      \path (2) edge[loop below] node         {$\begin{array}{c}\smTMtransL{x}{x} \\ \forall x\in \{a, b, c\}\end{array}$} (2);
-      \path (2) edge             node[sloped] {\smTMtransR{\blank}{\blank} } (0);
-      \path (0) edge             node[sloped] {\smTMtransR{b}{c}} (3);
-      \path (3) edge[loop below] node         {\smAlign{\smTMtransR{b}{b}\smTMtransR{c}{c}}} (3);
-      \path (3) edge             node[swap]   {\smTMtransL{a}{c}} (2);
-      \path (0) edge[loop above] node         {\smTMtransR{c}{c}} (0);
-      \path (0) edge             node         {\smTMtransR{\blank}{\blank}} (4);
+      \path (0) edge             node[sloped] {\smTMtransR{a}{c}}                                             (1);
+      \path (1) edge[loop below] node         {\smAlign{\smTMtransR{a}{a}\smTMtransR{c}{c}}}                  (1);
+      \path (1) edge             node         {\smTMtransL{b}{c}}                                             (2);
+      \path (2) edge[loop below] node         {\smAlign{\smTMtransL{a}{a}\smTMtransL{b}{b}\smTMtransL{c}{c}}} (2);
+      \path (2) edge             node[sloped] {\smTMtransR{\blank}{\blank}}                                   (0);
+      \path (0) edge             node[sloped] {\smTMtransR{b}{c}}                                             (3);
+      \path (3) edge[loop below] node         {\smAlign{\smTMtransR{b}{b}\smTMtransR{c}{c}}}                  (3);
+      \path (3) edge             node[swap]   {\smTMtransL{a}{c}}                                             (2);
+      \path (0) edge[loop above] node         {\smTMtransR{c}{c}}                                             (0);
+      \path (0) edge             node         {\smTMtransR{\blank}{\blank}}                                   (4);
     \end{tikzpicture}
   \end{center}
   

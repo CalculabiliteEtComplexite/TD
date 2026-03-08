@@ -92,7 +92,7 @@
       \state            (2) at (2,0) {$2$}; 
       \state[accepting] (3) at (3,0) {$3$}; 
 
-      \path (0) edge             node {\smTMtransR[\textsc{c}]{x}{x}}                                                            (1);
+      \path (0) edge             node {\smTMtransR[\textsc{c}]{\blank}{x}}                                                            (1);
       \path (1) edge[loop above] node {\smGroup{\smTMtransR[\textsc{i}]{(}{(}\smTMtransR[\textsc{c}]{\blank}{\blank}}}           (1);
       \path (1) edge[loop below] node {\smGroup{\smTMtransR[\textsc{i}]{)}{)}\smTMtransL[\textsc{c}]{\blank}{\blank}}}           (1);
       \path (1) edge             node {\smGroup{\smTMtransL[\textsc{i}]{\blank}{\blank}\smTMtransL[\textsc{c}]{\blank}{\blank}}} (2);

@@ -189,21 +189,8 @@
   \item Montrez que les paires critiques de la catégorie (\ref{confluence:critical:blank}) sont joignables.
   \end{question}
   \begin{correction}
-    Le système de réécriture est joignable ssi le mot est engendré par la machine de Turing ci-dessus, donc
-    $\{a^nb^n \mid n\in \mathbb{N}\} \le_m \textsc{Confluence locale}$. 
-  \end{correction}
-
-  \begin{correction}
-    \begin{enumerate}
-    \item La seule paire critique issue de $S$ est $\langle \llparenthesis 0 \rrparenthesis, \llparenthesis 0 v \rrparenthesis  \rangle$.
-    \item On cherche des mots $\alpha q_1 \beta q_2 \gamma$ (resp. $q_1 \beta q_2 \gamma$), tels que $\alpha q_1 \beta$ (resp. $\alpha q_1 \beta$)
-      et $\beta q_2 \gamma$ sont les membres gauches de règles venant des transitions. Par exemple, $1a0a$ donne la paire $\langle a10a, 10aa  \rangle$,
-      et $\blank 0 a 0 b$ donne la paire $\langle 0 \blank a 0 b, \blank 0 0 a b \rangle$.
-    \item On a les paires issues de l'intéraction entre $\llparenthesis\blank$ et les règles commençant par un $\blank$
-      (par exemple, $\llparenthesis\blank 0 a$ donne la paire critique $\langle \llparenthesis 0 a, \llparenthesis 0 \blank a\rangle$),
-      et les paires issues de l'intéraction entre $\blank \rrparenthesis$ et les règles finissant par un $\blank$
-      (par exemple, $0 \blank \rrparenthesis$ donne la paire critique $\langle 0 \rrparenthesis, a1 \rrparenthesis\rangle$).
-    \end{enumerate}
+    Les paires critiques de la troisième catégorie utilisent toutes la règle $\llparenthesis \blank \hookrightarrow \llparenthesis$
+    ou la règle $\blank\rrparenthesis \hookrightarrow \rrparenthesis$. Or ces deux règles sont réversibles. 
   \end{correction}
 
   Pour traiter les paires critiques de la catégorie~(\ref{confluence:critical:invalid}),
@@ -226,15 +213,6 @@
     et en déduire que toutes les paires critiques de la catégorie~(\ref{confluence:critical:invalid}) sont joignables.
   \end{question}
   \begin{correction}
-    Les paires critiques de la troisième catégorie utilisent toutes la règle $\llparenthesis \blank \hookrightarrow \llparenthesis$
-    ou la règle $\blank\rrparenthesis \hookrightarrow \rrparenthesis$. Or ces deux règles sont réversibles. 
-  \end{correction}
-
-  \ifcorrection{\pagebreak}
-  \begin{question}
-  \item Entre quels problèmes la réduction construite dans les questions précédentes établit-elle un lien, et dans quel sens ?  
-  \end{question}
-  \begin{correction}
     Soit $u = v q_1 \alpha_1 ... \alpha_n q_2 w$ un mot contenant au moins deux symboles d'état. On a :
     $$
     \begin{array}{rcl}
@@ -250,6 +228,15 @@
     $$
 
     Toutes les paires critiques de la catégorie (2) sont formées de mots contenant deux symboles d'état, donc elles sont toujours joignables en \ERR. 
+  \end{correction}
+
+  \ifcorrection{\pagebreak}
+  \begin{question}
+  \item Entre quels problèmes la réduction construite dans les questions précédentes établit-elle un lien, et dans quel sens ?  
+  \end{question}
+  \begin{correction}
+    Le système de réécriture est joignable ssi le mot est engendré par la machine de Turing ci-dessus, donc
+    $\{a^nb^n \mid n\in \mathbb{N}\} \le_m \textsc{Confluence locale}$. 
   \end{correction}
 
   \begin{question}

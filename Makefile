@@ -46,9 +46,9 @@ CORR := $(MAIN:%=%-correction)
 
 .PHONY: main corr all deps update clean cleanall help FORCE configure list check-course
 
+all: 			main corr
 main:			$(MAIN:%=$(DOCSDIR)/$(PREFIX)-%.pdf)
 corr: 			$(MAIN:%=$(DOCSDIR)/$(PREFIXCORR)-%.pdf)
-all: 			main corr
 
 $(MAIN): %:	    	$(DOCSDIR)/$(PREFIX)-%.pdf
 $(CORR): %-correction:	$(DOCSDIR)/$(PREFIXCORR)-%.pdf
